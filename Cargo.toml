@@ -1,0 +1,14 @@
+[package]
+name = "cabinet"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dirs = "4.0"
+
+[[bin]]
+name = "cab"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = 3
