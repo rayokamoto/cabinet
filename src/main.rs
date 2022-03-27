@@ -1,15 +1,13 @@
-use std::ffi::OsStr;
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::fs::DirEntry;
 use std::env::args_os;
-use std::path::Path;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use std::{
     io::{stdout, Write},
     thread::sleep,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use dirs;
@@ -332,6 +330,7 @@ fn file_type(args: &Vec<Token>) {
         }
     }
 
+    // Not that this will not run if there are files with no file extensions
     if *&files.len() == 0 { // dereference, otherwise &usize will be compared to int
         println!("There are no files to sort");
         return;
@@ -360,7 +359,7 @@ fn file_type(args: &Vec<Token>) {
     }
 
     let mut files_sorted:f64 = 0.0;
-
+    let start = Instant::now();
     // TODO: maybe have progress bar
     let mut stdout = stdout();
     for (idx, file) in files.iter().enumerate() {
@@ -398,8 +397,11 @@ fn file_type(args: &Vec<Token>) {
         //sleep(Duration::from_millis(10));
 
     }
+    let duration = start.elapsed();
     stdout.flush().unwrap();
-    print!("\rProcessed 100%\t\t\n");
+    // \t doesn't seem to actually work in clearing everything - you get "Processed 100%9%"
+    print!("\rProcessed 100%   \n"); 
+    println!("Time taken: {:?}", duration);
     println!("Sorted {}/{} files into folders", &files_sorted, &files.len());
 
     //println!("{:?}", &files);

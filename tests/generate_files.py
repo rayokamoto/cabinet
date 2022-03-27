@@ -23,12 +23,13 @@ def main(argv, argc):
     # The directory where this file is run from
     cwd = os.getcwd()
     path = cwd + "/test_dir"
-    FILE_COUNT = 50
+    FILE_COUNT = 1000
     
     if argc == 0:
         if not os.path.isdir(path):
             os.mkdir(path)
         
+        # TODO: Test file types with invalid unicode
         file_types = [
             "abc",
             "def",
@@ -36,7 +37,7 @@ def main(argv, argc):
             "txt",
             "😀😀",
             "123",
-            ""
+            ".md"
         ]
 
         for i in file_types:
