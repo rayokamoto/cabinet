@@ -1,10 +1,16 @@
 # Cabinet
-Cross-platform file sorting system
+Cross-platform file sorting system that sorts files based on their attributes, such as file type,
+file name and date modified.
+
+In future, options to do things like renaming and deleting a bunch of files may be implemented,
+though that is not a priority.
 
 ### Currently implemented:
-* [x] File type
-* [ ] Date modified
-* [ ] File name
+* [x] Sort by file type
+* [ ] Sort by file name
+* [ ] Sort by date modified
+* [ ] Sort by file size
+* [ ] Load commands from a config or task file
 
 ---
 
