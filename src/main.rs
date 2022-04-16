@@ -13,34 +13,12 @@ use std::{
 mod commands;
 use commands::help;
 
+mod parser;
+use parser::{TokenType, Token, SubCommand};
 mod path;
 use path::{get_path, ArgumentType};
 
 const DEBUG: bool = false;
-
-
-#[derive(Debug, PartialEq, Clone)]
-enum TokenType {
-    SubCommand,
-    Argument,
-    ArgumentValue
-}
-
-#[derive(Debug, PartialEq, Clone)]
-struct Token {
-    of_type: TokenType,
-    value: String,
-    position: usize
-}
-
-
-#[derive(Debug, PartialEq, Clone)]
-enum SubCommand {
-    Help,
-    Type,
-    Name,
-    Date
-}
 
 
 fn parse_args() -> Vec<Token> {
@@ -353,6 +331,7 @@ fn main() {
     // TODO: Add option to break up an option like "-rf" and separate into "-r" and "-f" for parsing purposes
     let arg_list = parse_args();
     //let argc = arg_list.len();
+    parser::tokenizer();
 
     if DEBUG {
         println!("{:?}", arg_list);
