@@ -2,6 +2,10 @@
 Cross-platform file sorting system that sorts files based on their attributes, such as file type,
 file name and date modified.
 
+### *NOTE: The commands and their syntax may change at any point since this is in active development. This README will be updated accordingly.*
+
+---
+
 In future, options to do things like renaming and deleting a bunch of files may be implemented,
 though that is not a priority.
 
@@ -47,10 +51,13 @@ With templates, you can sort directories quickly. Invoke using the `-t` or `--te
 cab type -t downloads
 ```
 Currently, the following templates are available:
-* Desktop
 * Documents
+* Desktop
 * Downloads
 * Home directory (e.g. `C:\Users\User\` or `/home/User/`)
+* Music (or Audio)
+* Pictures
+* Videos (or Movies)
 
 
 ## Testing
