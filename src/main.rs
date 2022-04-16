@@ -58,18 +58,19 @@ Usage: cab date [<options>] <path>
 
 
 #[derive(Debug, PartialEq, Clone)]
+enum TokenType {
+    SubCommand,
+    Argument,
+    ArgumentValue
+}
+
+#[derive(Debug, PartialEq, Clone)]
 struct Token {
     of_type: TokenType,
     value: String,
     position: usize
 }
 
-#[derive(Debug, PartialEq, Clone)]
-enum TokenType {
-    SubCommand,
-    Argument,
-    ArgumentValue
-}
 
 #[derive(Debug, PartialEq, Clone)]
 enum SubCommand {
@@ -89,7 +90,7 @@ enum ArgumentType {
 
 fn parse_args() -> Vec<Token> {
     let mut argv: Vec<OsString> = args_os().collect();
-    argv.remove(0); // Remove filename
+    argv.remove(0); // Remove the filename from the array
     let argc = argv.len();
     //println!("Arg length: {}; Arguments: {:?}", argc, argv);
 
