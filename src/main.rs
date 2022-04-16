@@ -29,22 +29,22 @@ Use -h or --help for more information on a command.
 ")
 }
 
-fn cmd_help(command: Command) {
+fn cmd_help(command: SubCommand) {
 
-    if command == Command::Type {
+    if command == SubCommand::Type {
         print!("command: type
 Usage: cab type [<options>] <path>
     -p, --path      The path you are using is an absolute path
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
 ")
     }
-    else if command == Command::Name {
+    else if command == SubCommand::Name {
         print!("command: name
 Usage: cab name [<options>] <path>
     
 ")
     }
-    else if command == Command::Date {
+    else if command == SubCommand::Date {
         print!("command: date
 Usage: cab date [<options>] <path>
 
@@ -66,13 +66,13 @@ struct Token {
 
 #[derive(Debug, PartialEq, Clone)]
 enum TokenType {
-    Command,
-    Option,
-    Parameter
+    SubCommand,
+    Argument,
+    ArgumentValue
 }
 
 #[derive(Debug, PartialEq, Clone)]
-enum Command {
+enum SubCommand {
     Help,
     Type,
     Name,
@@ -80,7 +80,7 @@ enum Command {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-enum OptionType {
+enum ArgumentType {
     None,
     Path,
     Template,
@@ -99,7 +99,7 @@ fn parse_args() -> Vec<Token> {
     // If there are no arguments
     if argc == 0 {
         let tok = Token {
-            of_type: TokenType::Command,
+            of_type: TokenType::SubCommand,
             value: String::from("help"),
             position: 0
         };
@@ -108,7 +108,7 @@ fn parse_args() -> Vec<Token> {
     }
 
     let tok = Token {
-        of_type: TokenType::Command,
+        of_type: TokenType::SubCommand,
         value: argv[0].to_str().unwrap().to_string(),
         position: 0
     };
@@ -121,7 +121,7 @@ fn parse_args() -> Vec<Token> {
 
         if arg.starts_with("-") {
             let tok = Token {
-                of_type: TokenType::Option,
+                of_type: TokenType::Argument,
                 value: arg,
                 position: pos+1
             };
@@ -129,7 +129,7 @@ fn parse_args() -> Vec<Token> {
         }
         else {
             let tok = Token {
-                of_type: TokenType::Parameter,
+                of_type: TokenType::ArgumentValue,
                 value: arg,
                 position: pos+1
             };
@@ -141,7 +141,7 @@ fn parse_args() -> Vec<Token> {
 }
 
 
-fn check_args(args: &Vec<Token>, command: Command) -> (Option<PathBuf>, Option<Vec<Token>>) {
+fn check_args(args: &Vec<Token>, command: SubCommand) -> (Option<PathBuf>, Option<Vec<Token>>) {
     // NOTE: repeated letters for option/flag does not change anything. It's like a set, whereby duplicates get removed.
 
     let mut has_opts: bool = false;
@@ -151,25 +151,25 @@ fn check_args(args: &Vec<Token>, command: Command) -> (Option<PathBuf>, Option<V
     let mut params: Vec<Token> = Vec::new();
     
     let mut path_exists: bool = false;
-    let mut path_type = OptionType::None;
+    let mut path_type = ArgumentType::None;
 
     // path type (path | template) is not incl. in opts
     for val in args {
-        if val.of_type == TokenType::Option {
+        if val.of_type == TokenType::Argument {
             has_opts = true;
             if ["-p", "--path"].contains(&&val.value[..]) {
-                path_type = OptionType::Path;
+                path_type = ArgumentType::Path;
                 path_exists = true;
             }
             else if ["-t", "--template"].contains(&&val.value[..]) {
-                path_type =  OptionType::Template;
+                path_type =  ArgumentType::Template;
                 path_exists = true;
             }
             else {
                 opts.push(val.clone());
             }
         }
-        if val.of_type == TokenType::Parameter {
+        if val.of_type == TokenType::ArgumentValue {
             has_params = true;
             params.push(val.clone());
         }
@@ -219,10 +219,10 @@ fn check_args(args: &Vec<Token>, command: Command) -> (Option<PathBuf>, Option<V
 /// Get filepath object
 /// 
 /// Only called when it is a valid path option -p or -t
-fn get_path(path: &String, path_type: OptionType) -> Option<PathBuf> {
+fn get_path(path: &String, path_type: ArgumentType) -> Option<PathBuf> {
     let mut path_ref: Option<PathBuf> = None;
     
-    if path_type == OptionType::Template {
+    if path_type == ArgumentType::Template {
         let path = path.to_lowercase();
         
         // TODO: add more directories
@@ -242,7 +242,7 @@ fn get_path(path: &String, path_type: OptionType) -> Option<PathBuf> {
             println!("The template '{}' does not exist.", &path);
         }
     }
-    else if path_type == OptionType::Path {
+    else if path_type == ArgumentType::Path {
         if Path::new(path).exists() {
             path_ref = Some(PathBuf::from(path));
         }
@@ -264,11 +264,11 @@ fn get_path(path: &String, path_type: OptionType) -> Option<PathBuf> {
 
 
 fn file_type(args: &Vec<Token>) {
-    let command = Command::Type;
+    let command = SubCommand::Type;
     let result = check_args(args, command.clone());
 
     if result == (None, None) {
-        // return with nothing. Command terminated.
+        // return with nothing. SubCommand terminated.
         return;
     }
 
@@ -410,22 +410,22 @@ fn file_type(args: &Vec<Token>) {
 }
 
 fn file_name(args: &Vec<Token>) {
-    let command = Command::Name;
+    let command = SubCommand::Name;
     let result = check_args(args, command.clone());
 
     if result == (None, None) {
-        // return with nothing. Command terminated.
+        // return with nothing. SubCommand terminated.
         return;
     }
 
 }
 
 fn file_date_mod(args: &Vec<Token>) {
-    let command = Command::Name;
+    let command = SubCommand::Name;
     let result = check_args(args, command.clone());
 
     if result == (None, None) {
-        // return with nothing. Command terminated.
+        // return with nothing. SubCommand terminated.
         return;
     }
 
