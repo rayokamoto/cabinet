@@ -8,7 +8,7 @@ pub enum ArgumentType {
     None,
     Path,
     Template,
-    Help
+    //Help
 }
 
 /// Get filepath object
@@ -20,12 +20,13 @@ pub fn get_path(path: &String, path_type: ArgumentType) -> Option<PathBuf> {
     if path_type == ArgumentType::Template {
         let path = &path.to_lowercase()[..];
         match path {
-            "audio" | "music" => path_ref = dirs::audio_dir(),
             "documents" => path_ref = dirs::document_dir(),
             "desktop" => path_ref = dirs::desktop_dir(),
             "downloads" => path_ref = dirs::download_dir(),
             "home" => path_ref = dirs::home_dir(),
+            "music" | "audio" => path_ref = dirs::audio_dir(),
             "pictures" => path_ref = dirs::picture_dir(),
+            "videos" | "movies" => path_ref = dirs::video_dir(),
             _ => println!("The template '{}' does not exist.", &path)
         }
     }
