@@ -10,52 +10,13 @@ use std::{
     time::{Duration, Instant},
 };
 
+mod commands;
+use commands::help;
 
 mod path;
 use path::{get_path, ArgumentType};
 
 const DEBUG: bool = false;
-
-fn help() {
-    print!("Cabinet 0.1.0
-Usage: cab <command> [<options>] <path>
-
-Available commands:
-   help      Shows this command
-   type      Sort files by file type
-   name      Sort files by file name
-   date      Sort files by their date of modification
-
-Use -h or --help for more information on a command. 
-")
-}
-
-fn cmd_help(command: SubCommand) {
-
-    if command == SubCommand::Type {
-        print!("command: type
-Usage: cab type [<options>] <path>
-    -p, --path      The path you are using is an absolute path
-    -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
-")
-    }
-    else if command == SubCommand::Name {
-        print!("command: name
-Usage: cab name [<options>] <path>
-    
-")
-    }
-    else if command == SubCommand::Date {
-        print!("command: date
-Usage: cab date [<options>] <path>
-
-")
-    }
-    else {
-        println!("The command either does not exist or no documentation currently exists for it.");
-    }
-
-}
 
 
 #[derive(Debug, PartialEq, Clone)]
@@ -172,7 +133,7 @@ fn check_args(args: &Vec<Token>, command: SubCommand) -> (Option<PathBuf>, Optio
 
     if has_opts && !has_params {
         if ["-h", "--help", "help"].contains(&&args[1].value[..]) {
-            cmd_help(command);
+            help::cmd_help(command);
         }
         else if ["-p", "--path"].contains(&&args[1].value[..]) || 
             ["-t", "--template"].contains(&&args[1].value[..]) {
@@ -180,12 +141,12 @@ fn check_args(args: &Vec<Token>, command: SubCommand) -> (Option<PathBuf>, Optio
         }
         else {
             println!("Invalid operation.");
-            cmd_help(command);
+            help::cmd_help(command);
         }
     }
     else if !has_opts && !has_params {
         println!("Missing arguments.\n");
-        cmd_help(command);
+        help::cmd_help(command);
     }
     else if !has_opts && has_params {
         // options were not specified 
@@ -403,8 +364,8 @@ fn main() {
     // arg_list will contain at least one argument.
     let command = &arg_list[0].value;
     if ["-h", "--help", "help"].contains(&&command[..]) {
-        help(); // note, only base help command since it was invoked as first and only argument
-        // TODO: actually, make it so that help <command> or <command> -h both work
+        help::help();
+        // TODO: <command> -h will be handled by the command itself
     }
     else if command == &String::from("type") {
         file_type(&arg_list);
