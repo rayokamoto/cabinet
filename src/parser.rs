@@ -1,6 +1,3 @@
-use std::env::args_os;
-use std::ffi::OsString;
-
 #[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     SubCommand,
@@ -23,24 +20,3 @@ pub enum SubCommand {
     Name,
     Date
 }
-
-
-pub fn tokenizer() -> Vec<Token> {
-    let mut arg_list: Vec<Token> = Vec::new();
-
-    let mut argv: Vec<OsString> = args_os().collect();
-    argv.remove(0); // Remove the filename from the array
-    let argc = argv.len();
-
-    if argc == 0 {
-        return arg_list;
-    }
-
-    for (idx, arg) in argv.iter().enumerate() {
-        //
-    }
-
-
-    arg_list    
-}
-

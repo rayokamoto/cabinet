@@ -52,8 +52,8 @@ cab type -t downloads
 ```
 Currently, the following templates are available:
 * Documents
-* Desktop
 * Downloads
+* Desktop
 * Home directory (e.g. `C:\Users\User\` or `/home/User/`)
 * Music (or Audio)
 * Pictures
