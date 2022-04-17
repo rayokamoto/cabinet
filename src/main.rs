@@ -73,7 +73,7 @@ fn parse_args() -> Vec<Token> {
         if arg.starts_with("--") {
             let tok = Token {
                 of_type: TokenType::Argument,
-                value: argv[0].to_str().unwrap().to_string(),
+                value: arg,
                 position: 0
             };
             arg_list.push(tok);
@@ -81,7 +81,7 @@ fn parse_args() -> Vec<Token> {
         else if arg.starts_with("-") {
             let tok = Token {
                 of_type: TokenType::Argument,
-                value: argv[0].to_str().unwrap().to_string(),
+                value: arg,
                 position: 0
             };
             arg_list.push(tok);
@@ -111,9 +111,10 @@ fn check_args(arg_list: &Vec<Token>, cmd: &String) {
         }
         let cmd = &cmd[..];
         match cmd {
+            "date" => commands::file_date::file_date(&arg_list),
+            "name" => commands::file_name::file_name(&arg_list),
+            "size" => commands::file_size::file_size(&arg_list),
             "type" => commands::file_type::file_type(&arg_list),
-            "name" => commands::file_name::file_name(),
-            "date" => commands::file_date::file_date(),
             _ => println!("ERROR")
         }
     }
