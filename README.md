@@ -40,10 +40,15 @@ cab <command> [<options>] <path>
 
 There are two options for sorting files: absolute path and path templates:
 #### Using absolute paths:
-Use `-p` or `--path` to use absolute paths
+Use `-a` or `--absolute` to use absolute paths. Absolute paths are used by default.
 ```
-cab type -p "C:\Users\User\Downloads"
-cab type -p "/home/User/Downloads"
+cab type -a "C:\Users\User\Downloads"
+cab type -a "/home/User/Downloads"
+```
+No flags provided will default to absolute path:
+```
+cab type "C:\Users\User\Downloads"
+cab type "/home/User/Downloads"
 ```
 #### Using templates
 With templates, you can sort directories quickly. Invoke using the `-t` or `--template` option:

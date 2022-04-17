@@ -17,6 +17,7 @@ fn next_arg(argc: &usize, argv: &Vec<Token>) -> Token {
     argv[arg_len - argc].clone()
 }
 
+/// Sort files based on their file type (file extension)
 pub fn file_type(args: &Vec<Token>) {
     let mut path: Option<PathBuf> = None;
     let mut argc = args.len() - 1; // since we want to ignore subcommand itself
@@ -28,14 +29,14 @@ pub fn file_type(args: &Vec<Token>) {
         
         if ["-t", "--template"].contains(&&arg.value[..]) {
             if argc <= 0 {
-                println!("No value provided!");
+                println!("No path provided!");
                 exit(1);
             }
             path_type = ArgType::Template;
         }
-        else if ["-p", "--path"].contains(&&arg.value[..]) {
+        else if ["-a", "--absolute"].contains(&&arg.value[..]) {
             if argc <= 0 {
-                println!("No value provided!");
+                println!("No path provided!");
                 exit(1);
             }
             path_type = ArgType::Absolute;

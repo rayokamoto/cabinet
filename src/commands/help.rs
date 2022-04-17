@@ -24,27 +24,27 @@ pub fn cmd_help<S: AsRef<str>>(command: S) {
     if command == "type" {
         print!("command: type
 Usage: cab type [<options>] <path>
-    -p, --path      The path you are using is an absolute path
+    -a, --absolute  The path you are using is an absolute path
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
 ")
     }
     else if command == "name" {
         print!("command: name
 Usage: cab name [<options>] <path>
-    -p, --path          The path you are using is an absolute path
+    -a, --absolute      The path you are using is an absolute path
     -t, --template      The path you are using is a predefined one. E.g. downloads for your downloads folder
-    --includes=<match>  File name includes...
-    --excludes=<match>  File name excludes...
+    --includes <match>  File name includes...
+    --excludes <match>  File name excludes...
 \nWARNING: CURRENTLY NOT IMPLEMENTED!
 ")
     }
     else if command == "date" {
         print!("command: date
 Usage: cab date [<options>] <path>
-    -p, --path      The path you are using is an absolute path
+    -a, --absolute  The path you are using is an absolute path
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
-    --before=<date> Get files from before specified date. Date format is YYYY-MM-DD
-    --after=<date>  Get files from after specified date. Date format is YYYY-MM-DD
+    --before <date> Get files from before specified date. Date format is YYYY-MM-DD
+    --after <date>  Get files from after specified date. Date format is YYYY-MM-DD
 \nWARNING: CURRENTLY NOT IMPLEMENTED!
 ")
     }
