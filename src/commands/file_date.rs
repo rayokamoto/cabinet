@@ -96,51 +96,56 @@ pub fn file_date(args: &Vec<Token>) {
         return;
     }
 
+
+    // TODO: Implement this feature for directories/folders
+
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
     let parent = path.unwrap(); // PathBuf
     println!("CURRENT PATH: {}", &paths_parent);
 
     let mut files: Vec<DirEntry> = vec![];
-    
+
     for item in dir {
         let item = item.unwrap();
         let md = item.metadata().unwrap();
         //let md = fs::metadata(item)?; // Alternative
 
-        //if let Ok(time) = md.modified() {
-        //    println!("{:?}", time);
-        //} else {
-        //    println!("Not supported on this platform");
-        //}
+        if md.is_file() {
+            //if let Ok(time) = md.modified() {
+            //    println!("{:?}", time);
+            //} else {
+            //    println!("Not supported on this platform");
+            //}
 
-        let time = md.modified().unwrap().duration_since(UNIX_EPOCH).unwrap(); // TODO: error handling
-        let dur = chrono::Duration::from_std(time).unwrap();
-        
-        // this is needed otherwise parsing won't work. maybe because re was consumed earlier?
-        let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
-        //let text = "2012-03-14, 2013-01-01 and 2014-07-05";
-        //for cap in re.captures_iter(text) {
-        //    println!("Day: {} Month: {} Year: {}", &cap[2], &cap[2], &cap[1]);
-        //}
-        
-        let text = &date.as_ref().unwrap()[..];
-        let cap = re.captures(text).unwrap();
-        //println!("Day: {} Month: {} Year: {}", &cap[2], &cap[2], &cap[1]);
-        
-        let date_time = chrono::NaiveDate::from_ymd(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap()).and_hms(0, 0, 0);
-        
-        let user_date = date_time.timestamp();
-        let file_date = dur.num_seconds();
-
-        //println!("Timestamp: {} (s)", date_time.timestamp());
-        //println!("{} (s)", dur.num_seconds());
-        
-        if date_before && file_date <= user_date {
-            files.push(item);
+            let time = md.modified().unwrap().duration_since(UNIX_EPOCH).unwrap(); // TODO: error handling
+            let dur = chrono::Duration::from_std(time).unwrap();
+            
+            // this is needed otherwise parsing won't work. maybe because re was consumed earlier?
+            let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
+            //let text = "2012-03-14, 2013-01-01 and 2014-07-05";
+            //for cap in re.captures_iter(text) {
+            //    println!("Day: {} Month: {} Year: {}", &cap[3], &cap[2], &cap[1]);
+            //}
+            
+            let text = &date.as_ref().unwrap()[..];
+            let cap = re.captures(text).unwrap();
+            //println!("Day: {} Month: {} Year: {}", &cap[3], &cap[2], &cap[1]);
+            
+            let date_time = chrono::NaiveDate::from_ymd(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap()).and_hms(0, 0, 0);
+            
+            let user_date = date_time.timestamp();
+            let file_date = dur.num_seconds();
+            
+            if date_before && file_date <= user_date {
+                files.push(item);
+            }
+            else if date_after && file_date >= user_date {
+                files.push(item);
+            }
         }
-        else if date_after && file_date >= user_date {
-            files.push(item);
+        else {
+            continue;
         }
 
 
