@@ -1,6 +1,7 @@
 //use crate::parser;
 //use crate::parser::SubCommand;
 
+/// The primary help command. Shows overall usage info
 pub fn help() {
     print!("Cabinet 0.1.0
 Usage: cab <command> [<options>] <path>
@@ -18,6 +19,7 @@ Use -h or --help for more information on a command.
 
 // TODO: SubCommand::<subcommand> or use of string??
 
+/// Subcommand-specific help
 pub fn cmd_help<S: AsRef<str>>(command: S) {
     let command = command.as_ref();
 

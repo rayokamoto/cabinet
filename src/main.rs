@@ -100,6 +100,7 @@ fn parse_args() -> Vec<Token> {
 }
 
 
+/// Check command line arguments and decide whether it is a flag/option, help command or other subcommand
 fn check_args(arg_list: &Vec<Token>, cmd: &String) {
     let argc = arg_list.len();
     if argc >= 2 {
@@ -132,6 +133,7 @@ fn check_args(arg_list: &Vec<Token>, cmd: &String) {
 fn main() {
     // TODO: (maybe) Add option to break up an option like "-rf" and separate into "-r" and "-f" for parsing purposes
     let arg_list = parse_args();
+    let subcommand_list = commands::get_subcommands();
 
     if DEBUG {
         println!("{:?}", arg_list);
@@ -141,13 +143,10 @@ fn main() {
     }
 
 
-    let subcommand_list = commands::get_subcommands();
-
     // arg_list will contain at least one argument.
     let arg0 = &arg_list[0];
     if ["-h", "--help", "help"].contains(&&arg0.value[..]) {
         help::help();
-        // TODO: <command> -h will be handled by the command itself
     }
 
     else if arg0.of_type == TokenType::Argument {
@@ -161,10 +160,5 @@ fn main() {
             println!("The command \"{}\" does not exist.", arg0.value);
         }
     }
-
-
-
-    // END
-    //
 
 }

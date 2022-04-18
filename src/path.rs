@@ -5,10 +5,10 @@ use dirs;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum ArgType {
-    None,
     Absolute,
     Template,
-    //Help
+    //None,
+    //Help,
 }
 
 /// Get filepath object

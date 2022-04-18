@@ -62,6 +62,8 @@ pub fn file_type(args: &Vec<Token>) {
         return;
     }
 
+    // TODO: Deal with symlinks
+
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
     let parent = path.unwrap(); // PathBuf

@@ -13,10 +13,10 @@ pub struct Token {
 }
 
 
-#[derive(Debug, PartialEq, Clone)]
-pub enum SubCommand {
-    //Help,
-    Type,
-    Name,
-    Date
-}
+//#[derive(Debug, PartialEq, Clone)]
+//pub enum SubCommand {
+//    //Help,
+//    Type,
+//    Name,
+//    Date
+//}

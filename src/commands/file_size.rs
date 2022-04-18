@@ -14,6 +14,7 @@ fn next_arg(argc: &usize, argv: &Vec<Token>) -> Token {
     argv[arg_len - argc].clone()
 }
 
+/// Sort files by their size
 pub fn file_size(args: &Vec<Token>) {
     let mut argc = args.len() - 1; // since we want to ignore subcommand itself
 
