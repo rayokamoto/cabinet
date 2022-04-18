@@ -8,8 +8,9 @@ Usage: cab <command> [<options>] <path>
 Available commands:
    help      Shows this command
    type      Sort files by file type
-   name      Sort files by file name
    date      Sort files by their date of modification
+   name      Sort files by file name
+   size      Sort by file size (in KB)
 
 Use -h or --help for more information on a command. 
 ")
@@ -39,7 +40,6 @@ Usage: cab name [<options>] <path>
     -t, --template      The path you are using is a predefined one. E.g. downloads for your downloads folder
     --includes <match>  File name includes...
     --excludes <match>  File name excludes...
-\nWARNING: CURRENTLY NOT IMPLEMENTED!
 ")
     }
     else if command == "date" {
@@ -51,7 +51,6 @@ Usage: cab date [<options>] <path>
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
     --before <date> Get files from before specified date. Date format is YYYY-MM-DD
     --after <date>  Get files from after specified date. Date format is YYYY-MM-DD
-\nWARNING: CURRENTLY NOT IMPLEMENTED!
 ")
     }
     else if command == "size" {

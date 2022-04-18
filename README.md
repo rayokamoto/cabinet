@@ -12,7 +12,7 @@ though that is not a priority.
 ### Currently implemented:
 * [x] Sort by file type
 * [x] Sort by date modified
-* [ ] Sort by file name
+* [x] Sort by file name
 * [ ] Sort by file size
 * [ ] Load commands from a config or task file
 
@@ -36,10 +36,11 @@ cab <command> [<options>] <path>
 #### Commands
 * `type` - Sort by file type (e.g. `.jpg`, `.png`, `.pdf`, etc.)
 * `date` - Sort by date modified (before or after given date)
-* `name` - Sort by name of file (Not yet implemented)
+* `name` - Sort by name of file (by whether given pattern is in the name or not)
+* `size` - Sort by size of file in KB (Not yet implemented)
 
 There are two options for sorting files: absolute path and path templates:
-#### Using absolute paths:
+#### Using absolute paths
 Use `-a` or `--absolute` to use absolute paths. Absolute paths are used by default.
 ```
 cab type -a "C:\Users\User\Downloads"
@@ -64,6 +65,7 @@ Currently, the following templates are available:
 * Pictures
 * Videos (or Movies)
 
+More in-depth information is available in the [features documentation](/docs/features.md).
 
 ## Testing
 For testing, such as generating test files to sort, Python is used. Python 3.7+ is recommended.
