@@ -23,15 +23,19 @@ pub fn cmd_help<S: AsRef<str>>(command: S) {
 
     if command == "type" {
         print!("command: type
+Sort files by file type
+
 Usage: cab type [<options>] <path>
-    -a, --absolute  The path you are using is an absolute path
+    -a, --absolute  The path you are using is an absolute path. This is the default option
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
 ")
     }
     else if command == "name" {
         print!("command: name
+Sort files by their name
+
 Usage: cab name [<options>] <path>
-    -a, --absolute      The path you are using is an absolute path
+    -a, --absolute      The path you are using is an absolute path. This is the default option
     -t, --template      The path you are using is a predefined one. E.g. downloads for your downloads folder
     --includes <match>  File name includes...
     --excludes <match>  File name excludes...
@@ -40,11 +44,25 @@ Usage: cab name [<options>] <path>
     }
     else if command == "date" {
         print!("command: date
+Sort files by the date modified
+
 Usage: cab date [<options>] <path>
-    -a, --absolute  The path you are using is an absolute path
+    -a, --absolute  The path you are using is an absolute path. This is the default option
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
     --before <date> Get files from before specified date. Date format is YYYY-MM-DD
     --after <date>  Get files from after specified date. Date format is YYYY-MM-DD
+\nWARNING: CURRENTLY NOT IMPLEMENTED!
+")
+    }
+    else if command == "size" {
+        print!("command: size
+Sort files by their size
+
+Usage: cab size [<options>] <path>
+    -a, --absolute  The path you are using is an absolute path. This is the default option
+    -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
+    --lt <size>     Get files that are LESS THAN the specified size (in KB)
+    --gt <size>     Get files that are GREATER THAN the specified size (ib KB)
 \nWARNING: CURRENTLY NOT IMPLEMENTED!
 ")
     }
