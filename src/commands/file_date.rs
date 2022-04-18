@@ -85,19 +85,25 @@ pub fn file_date(args: &Vec<Token>) {
         
     }
 
-    // add logic for if path exists or not
-
 
     //println!("Path type: {:?}", &path_type);
     //println!("Date: {:?}", &date);
     
     if path == None {
         // no path or invalid path
+        println!("ERROR: There was no path provided, or the path was invalid");
+        return;
+    }
+    
+    // Neither was provided
+    if (!date_before && !date_after) || date == None {
+        println!("ERROR: A before or after date must be provided");
         return;
     }
 
 
     // TODO: Implement this feature for directories/folders
+    // TODO: Deal with symlinks
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
