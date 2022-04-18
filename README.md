@@ -11,8 +11,8 @@ though that is not a priority.
 
 ### Currently implemented:
 * [x] Sort by file type
+* [x] Sort by date modified
 * [ ] Sort by file name
-* [ ] Sort by date modified
 * [ ] Sort by file size
 * [ ] Load commands from a config or task file
 
@@ -35,8 +35,8 @@ cab <command> [<options>] <path>
 ```
 #### Commands
 * `type` - Sort by file type (e.g. `.jpg`, `.png`, `.pdf`, etc.)
+* `date` - Sort by date modified (before or after given date)
 * `name` - Sort by name of file (Not yet implemented)
-* `date` - Sort by date modified (Not yet implemented)
 
 There are two options for sorting files: absolute path and path templates:
 #### Using absolute paths:
