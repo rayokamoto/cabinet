@@ -17,13 +17,13 @@ In general, the way commands work is as follows:
 Currently implemented commands:
 - `type`
 - `date`
+- `name`
+- `size`
 
 Other commands:
 - `help`
 
 Future commands:
-- `name`
-- `size`
 
 
 ### Path
@@ -68,15 +68,26 @@ These are command-specific and are documented under the [commands](#commands) se
 ## Commands
 A general overview of the commands available.
 
-### type
-Usage
-```
-cab type [<options>] <path>
-```
-
-
 ### date
 Usage
 ```
 cab date [<options>] <path>
+```
+
+### name
+Usage
+```
+cab name [<options>] <path>
+```
+
+### size
+Usage
+```
+cab size [<options>] <path>
+```
+
+### type
+Usage
+```
+cab type [<options>] <path>
 ```
