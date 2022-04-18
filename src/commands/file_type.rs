@@ -19,10 +19,11 @@ fn next_arg(argc: &usize, argv: &Vec<Token>) -> Token {
 
 /// Sort files based on their file type (file extension)
 pub fn file_type(args: &Vec<Token>) {
-    let mut path: Option<PathBuf> = None;
     let mut argc = args.len() - 1; // since we want to ignore subcommand itself
     
+    let mut path: Option<PathBuf> = None;
     let mut path_type = ArgType::Absolute;
+    
     while argc > 0 {
         let arg = next_arg(&argc, &args);
         argc = argc - 1;
@@ -61,7 +62,7 @@ pub fn file_type(args: &Vec<Token>) {
         return;
     }
 
-    let paths = fs::read_dir(path.as_ref().unwrap()).unwrap();
+    let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
     let parent = path.unwrap(); // PathBuf
     println!("CURRENT PATH: {}", &paths_parent);
@@ -69,15 +70,15 @@ pub fn file_type(args: &Vec<Token>) {
     let mut files: Vec<DirEntry> = vec![];
     let mut file_types: Vec<String> = vec![];
 
-    for path in paths {
-        // unwrap path to get Ok(path) i.e. DirEntry
-        let path = path.unwrap();
-        //println!("FILE: {:?}", &path.path());
-        // get metadata for path then unwrap to get Ok() value instead of Err()
-        let md = path.metadata().unwrap();
+    for item in dir {
+        // unwrap item to get Ok(item) i.e. DirEntry
+        let item = item.unwrap();
+        //println!("FILE: {:?}", &item.path());
+        // get metadata for item then unwrap to get Ok() value instead of Err()
+        let md = item.metadata().unwrap();
         if md.is_file() {
-            let filename = &path.file_name();
-            files.push(path);
+            let filename = &item.file_name();
+            files.push(item);
 
             // Will panic when it encounters file with no extension.
             //let f_type = Path::new(filename).extension().and_then(OsStr::to_str).unwrap().to_string();
@@ -147,13 +148,14 @@ pub fn file_type(args: &Vec<Token>) {
         }
     }
 
-    let mut files_sorted:f64 = 0.0;
+    let mut files_sorted: f64 = 0.0;
     let start = Instant::now();
     // TODO: maybe have progress bar
     let mut stdout = stdout();
     for (idx, file) in files.iter().enumerate() {
         let done = idx as f64 / *&files.len() as f64;
-        // get file extension
+        // Get file extension to sort into folder for that file extension
+
         //let ext = Path::new(&file.file_name()).extension().and_then(OsStr::to_str).unwrap().to_string();
         let fname = &file.file_name();
         // If Path::new(&file.file_name()) is used, rustc(E0716) is raised. 
@@ -175,9 +177,7 @@ pub fn file_type(args: &Vec<Token>) {
         //println!("FROM: {:?} --TO: {:?}", &file.path(), &full_path.join(file.file_name()));
         let f = fs::rename(file.path(), full_path.join(file.file_name()));
         match f {
-            Ok(_) => {
-                files_sorted += 1.0;
-            },
+            Ok(_) => files_sorted += 1.0,
             Err(error) => println!("There was a problem opening the file:\n{:?}", error)
         };
         
