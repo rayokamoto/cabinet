@@ -106,7 +106,7 @@ fn check_args(arg_list: &Vec<Token>, cmd: &String) {
     if argc >= 2 {
         if ["-h", "--help", "help"].contains(&&arg_list[1].value[..]) {
             // run specific help command
-            println!("Specific help command for `{}`", cmd);
+            //println!("Specific help command for `{}`", cmd);
             help::cmd_help(cmd);
             return;
         }
