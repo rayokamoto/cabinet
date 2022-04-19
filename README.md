@@ -34,7 +34,7 @@ cargo build --release
 cab <command> [<options>] <path>
 ```
 
-<h3 style="text-align:center;">
+<h3 align="center">
     More in-depth information is available in the <a href="/docs/features.md">features documentation</a>.
 </h3>
 
