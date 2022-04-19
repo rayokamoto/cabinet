@@ -2,7 +2,7 @@
 Cross-platform file sorting system that sorts files based on their attributes, such as file type,
 file name and date modified.
 
-### *NOTE: The commands and their syntax may change at any point since this is in active development. This README will be updated accordingly.*
+#### *Disclaimer: Note that features may be added, revised, or removed at any time as this is in active development*
 
 ---
 
@@ -33,9 +33,14 @@ cargo build --release
 ```
 cab <command> [<options>] <path>
 ```
+
+<h3 style="text-align:center;">
+    More in-depth information is available in the <a href="/docs/features.md">features documentation</a>.
+</h3>
+
 #### Commands
 * `type` - Sort by file type (e.g. `.jpg`, `.png`, `.pdf`, etc.)
-* `date` - Sort by date modified (before or after given date)
+* `date` - Sort by date modified (before or after given date in `YYYY-MM-DD` format)
 * `name` - Sort by name of file (by whether given pattern is in the name or not)
 * `size` - Sort by size of file in KB (by whether file is smaller or larger than given size)
 
@@ -64,8 +69,6 @@ Currently, the following templates are available:
 * Music (or Audio)
 * Pictures
 * Videos (or Movies)
-
-More in-depth information is available in the [features documentation](/docs/features.md).
 
 ## Testing
 For testing, such as generating test files to sort, Python is used. Python 3.7+ is recommended.
