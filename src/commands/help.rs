@@ -3,7 +3,7 @@
 
 /// The primary help command. Shows overall usage info
 pub fn help() {
-    print!("Cabinet 0.1.0
+    print!("Cabinet 0.2.1
 Usage: cab <command> [<options>] <path>
 
 Available commands:
