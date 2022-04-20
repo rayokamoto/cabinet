@@ -20,12 +20,12 @@ pub fn get_path(path: &String, path_type: ArgType) -> Option<PathBuf> {
     if path_type == ArgType::Template {
         let path = &path.to_lowercase()[..];
         match path {
-            "documents" => path_ref = dirs::document_dir(),
-            "downloads" => path_ref = dirs::download_dir(),
-            "desktop" => path_ref = dirs::desktop_dir(),
-            "home" => path_ref = dirs::home_dir(),
-            "music" | "audio" => path_ref = dirs::audio_dir(),
-            "pictures" => path_ref = dirs::picture_dir(),
+            "documents"         => path_ref = dirs::document_dir(),
+            "downloads"         => path_ref = dirs::download_dir(),
+            "desktop"           => path_ref = dirs::desktop_dir(),
+            "home"              => path_ref = dirs::home_dir(),
+            "music" | "audio"   => path_ref = dirs::audio_dir(),
+            "pictures"          => path_ref = dirs::picture_dir(),
             "videos" | "movies" => path_ref = dirs::video_dir(),
             _ => println!("The template '{}' does not exist.", &path)
         }
