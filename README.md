@@ -46,7 +46,7 @@ cab <command> [<options>] <path>
 
 There are two options for sorting files: absolute path and path templates:
 #### Using absolute paths
-Use `-a` or `--absolute` to use absolute paths. Absolute paths are used by default.
+Use `-p` or `--path` to use absolute or relative paths. This option is used by default. Note that if the directory that you are sorting is in the same directory as `cab`, then you can just use relative paths. 
 ```
 cab type -a "C:\Users\User\Downloads"
 cab type -a "/home/User/Downloads"

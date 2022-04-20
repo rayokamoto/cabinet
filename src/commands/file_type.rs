@@ -35,7 +35,7 @@ pub fn file_type(args: &Vec<Token>) {
             }
             path_type = ArgType::Template;
         }
-        else if ["-a", "--absolute"].contains(&&arg.value[..]) {
+        else if ["-p", "--path"].contains(&&arg.value[..]) {
             if argc <= 0 {
                 println!("No path provided!");
                 exit(1);
