@@ -31,7 +31,7 @@ You have two options when providing a path:
 - Absolute path 
 - Template path
 
-When you run a command, you must provide a path/directory to sort. If no path option is provided, it defaults to using the absolute path. Otherwise, you can refer to the absolute path using the `-a` or `--absolute` options. Relative paths also work. E.g. you are in a directory with the folder `projects`, simply typing `projects` as your path will work.
+When you run a command, you must provide a path/directory to sort. If no path option is provided, it defaults to using the absolute path. Otherwise, you can refer to the absolute path using the `-p` or `--path` options. Relative paths also work. E.g. you are in a directory with the folder `projects`, simply typing `projects` as your path will work.
 
 Example
 ```
@@ -161,6 +161,6 @@ Usage: cab type [<options>] <path>
 #### Examples
 ```
 cab type /path/to/folder
-cab type -a /path/to/folder
+cab type -p /path/to/folder
 cab type -t downloads
 ```
