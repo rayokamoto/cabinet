@@ -20,36 +20,42 @@ pub fn file_size(args: &Vec<Token>) {
 
     let mut path: Option<PathBuf> = None;
     let mut path_type = ArgType::Absolute;
-    let mut size: Option<String> = None;
-    let mut size_expected = false; // expecting size as next argument
 
-    // TODO: Enable use of both a less-than and greater-than pattern
-    let mut size_lt = false;
-    let mut size_gt = false;
+    // size_expected: 0 for not expecting (false), 1 for min size, 2 for max size
+    let mut size_expected = 0;
+    let mut size_min: Option<String> = None;
+    let mut size_max: Option<String> = None;
 
     while argc > 0 {
         let arg = next_arg(&argc, &args);
         argc = argc - 1;
         
-        if size_expected {
-            if size != None {
-                println!("You have already provided a file size!");
+        // TODO: use match statement?
+        if size_expected == 1 {
+            if size_min != None {
+                println!("You have already provided a minimum file size!");
                 exit(1);
             }
-            size = Some(arg.value.clone());
-            size_expected = false;
+            size_min = Some(arg.value.clone());
+            size_expected = 0;
+            continue;
+        }
+        else if size_expected == 2 {
+            if size_max != None {
+                println!("You have already provided a maximum file size!");
+                exit(1);
+            }
+            size_max = Some(arg.value.clone());
+            size_expected = 0;
             continue;
         }
 
-        if ["--lt"].contains(&&arg.value[..]) {
-            size_expected = true;
-            size_lt = true;
+        if ["--min"].contains(&&arg.value[..]) {
+            size_expected = 1;
         }
-        else if ["--gt"].contains(&&arg.value[..]) {
-            size_expected = true;
-            size_gt = true;
+        else if ["--max"].contains(&&arg.value[..]) {
+            size_expected = 2;
         }
-
         else if ["-t", "--template"].contains(&&arg.value[..]) {
             if argc <= 0 {
                 println!("No path provided!");
@@ -78,15 +84,34 @@ pub fn file_size(args: &Vec<Token>) {
 
 
     if path == None {
-        // no path or invalid path
+        // No path or invalid path
         println!("ERROR: There was no path provided, or the path was invalid");
         return;
     }
 
     // Neither was provided
-    if (!size_lt && !size_gt) || size == None {
-        println!("ERROR: A before or after date must be provided");
+    if size_min == None && size_max == None {
+        println!("ERROR: A min or max size (or both) must be provided");
         return;
+    }
+
+    if  size_min.clone().unwrap().parse::<i64>().unwrap() < 0 || size_max.clone().unwrap().parse::<i64>().unwrap() < 0 {
+        println!("ERROR: Negative values cannot be used as file sizes");
+        return;
+    }
+
+    let mut has_min = false;
+    let mut has_max = false;
+    let mut min: u64 = 0;
+    let mut max: u64 = 0;
+
+    if size_min != None {
+        has_min = true;
+        min = size_min.clone().unwrap().parse::<u64>().unwrap();
+    }
+    if size_max != None {
+        has_max = true;
+        max = size_max.clone().unwrap().parse::<u64>().unwrap();
     }
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
@@ -96,26 +121,24 @@ pub fn file_size(args: &Vec<Token>) {
 
     let mut files: Vec<DirEntry> = vec![];
 
-    
     for item in dir {
         let item = item.unwrap();
         let md = item.metadata().unwrap();
-        
-        
+
         if md.is_file() {
-            let size = size.clone().unwrap().parse::<u64>().unwrap();
             let file_size = &md.len() / 1000; // Convert bytes to kilobytes
-            
-            if size_lt && file_size <= size {
-                files.push(item);
-            }
-            else if size_gt && file_size >= size {
-                files.push(item);
-            }
 
+            //println!("filesize:{} - min-check:{:?}, max-check:{:?}", &file_size, file_size >= min, file_size <= max);
+            if (has_min && has_max) && (file_size >= min && file_size <= max) {
+                files.push(item);
+            }
+            else if (has_min && !has_max) && file_size >= min {
+                files.push(item);
+            }
+            else if (has_max && !has_min) && file_size <= max {
+                files.push(item);
+            }
         }
-
-        // continue for now
     }
 
     if *&files.len() == 0 {
@@ -127,7 +150,7 @@ pub fn file_size(args: &Vec<Token>) {
     // Make folder if necessary
     // TODO: Sort out the naming of the newly created folder
     let mut full_path = parent.clone();
-    let size = size.unwrap();
+    let size = "Sorted_By_Size".to_string();
     full_path.push(&size);
     if !Path::new(&full_path).exists() {
         let f = fs::create_dir(&full_path);

@@ -130,19 +130,19 @@ Sort files by their size in KB (do not include 'KB' in the actual command)
 Usage: cab size [<options>] <path>
     -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
-    --lt <size>     Get files that are LESS THAN the specified size (in KB)
-    --gt <size>     Get files that are GREATER THAN the specified size (in KB)
+    --min <size>    Get files that are GREATER THAN the specified size (in KB)
+    --max <size>    Get files that are LESS THAN the specified size (in KB)
 ```
-You must specify whether you want to sort files that are less than or greater than the file size you specified. Use `--lt` to sort by files less than the specified size and `--gt` for files greater than the specified size. Note that currently, only sizes in KB is supported. NOTE: do not include "KB" in the actual command!
+You must specify whether you want to sort files that are less than or greater than the file size you specified. Use `--max` to sort by files less than the specified size and `--min` for files greater than the specified size. Note that currently, only sizes in KB is supported. NOTE: do not include "KB" in the actual command!
 
 #### Remarks
-- The ability to use both the `--lt` and `--gt` options to set a size range will be added in the future.
+- The ability to use a size other than KB (e.g. MB, GB) will be added in the future.
 
 #### Examples
 ```
-cab size /path/to/folder --lt 1000
-cab size /path/to/folder --gt 31
-cab size -t downloads --gt 1729
+cab size /path/to/folder --max 1000
+cab size /path/to/folder --min 31
+cab size -t downloads --min 10 --max 10000
 ```
 
 <br>
