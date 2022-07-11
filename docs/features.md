@@ -80,7 +80,7 @@ For help on a command, type `cab <command> --help`.
 Sort files by the date modified
 
 Usage: cab date [<options>] <path>
-    -p, --path      The path you are using is an absolute or relative path. This is the default option
+    -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
     --before <date> Get files from before specified date. Date format is YYYY-MM-DD
     --after <date>  Get files from after specified date. Date format is YYYY-MM-DD
@@ -104,7 +104,7 @@ cab date -t downloads --after 2021-04-01
 Sort files by their name
 
 Usage: cab name [<options>] <path>
-    -p, --path          The path you are using is an absolute or relative path. This is the default option
+    -p, --path          The path you are using is an absolute or relative path. Absolute path is the default option
     -t, --template      The path you are using is a predefined one. E.g. downloads for your downloads folder
     --includes <match>  File name includes...
     --excludes <match>  File name excludes...
@@ -128,7 +128,7 @@ cab name -t downloads --includes "hello world"
 Sort files by their size in KB (do not include 'KB' in the actual command)
 
 Usage: cab size [<options>] <path>
-    -p, --path      The path you are using is an absolute or relative path. This is the default option
+    -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
     --lt <size>     Get files that are LESS THAN the specified size (in KB)
     --gt <size>     Get files that are GREATER THAN the specified size (in KB)
@@ -152,7 +152,7 @@ cab size -t downloads --gt 1729
 Sort files by file type
 
 Usage: cab type [<options>] <path>
-    -p, --path      The path you are using is an absolute or relative path. This is the default option
+    -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
 ```
 #### Remarks
