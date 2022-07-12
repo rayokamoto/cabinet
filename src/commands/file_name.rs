@@ -20,37 +20,40 @@ pub fn file_name(args: &Vec<Token>) {
 
     let mut path: Option<PathBuf> = None;
     let mut path_type = ArgType::Absolute;
-    let mut name_pattern: Option<String> = None;
-    let mut name_pattern_expected = false;
 
-    // TODO: Enable use of both an include and exclude pattern
-    let mut name_include_pattern = false;
-    let mut name_exclude_pattern = false;
-
+    // 0 - not expecting, 1 - include pattern, 2 - exclude pattern
+    let mut pattern_expected = 0;
+    let mut include_pattern: Option<String> = None;
+    let mut exclude_pattern: Option<String> = None;
 
     while argc > 0 {
         let arg = next_arg(&argc, &args);
         argc = argc - 1;
-        
 
-        if name_pattern_expected {
-            if name_pattern != None {
-                println!("You have already provided an include/exclude pattern!");
+        if pattern_expected == 1 {
+            if include_pattern != None {
+                println!("You have already provided an include pattern!");
                 exit(1);
             }
-            name_pattern = Some(arg.value.clone());
-            name_pattern_expected = false;
+            include_pattern = Some(arg.value.clone());
+            pattern_expected = 0;
+            continue;
+        }
+        else if pattern_expected == 2 {
+            if exclude_pattern != None {
+                println!("You have already provided an exclude pattern!");
+                exit(1);
+            }
+            exclude_pattern = Some(arg.value.clone());
+            pattern_expected = 0;
             continue;
         }
 
-
         if ["--includes"].contains(&&arg.value[..]) {
-            name_pattern_expected = true;
-            name_include_pattern = true;
+            pattern_expected = 1;
         }
         else if ["--excludes"].contains(&&arg.value[..]) {
-            name_pattern_expected = true;
-            name_exclude_pattern = true;
+            pattern_expected = 2;
         }
         else if ["-t", "--template"].contains(&&arg.value[..]) {
             if argc <= 0 {
@@ -76,20 +79,33 @@ pub fn file_name(args: &Vec<Token>) {
             path = get_path(&arg.value, path_type);
             //break;
         }
-
     }
 
 
     if path == None {
-        // no path or invalid path
+        // No path or invalid path
         println!("ERROR: There was no path provided, or the path was invalid");
         return;
     }
 
     // Neither was provided
-    if (!name_include_pattern && !name_exclude_pattern) || name_pattern == None {
+    if include_pattern == None && exclude_pattern == None {
         println!("ERROR: A before or after date must be provided");
         return;
+    }
+
+    let mut has_include = false;
+    let mut has_exclude = false;
+    let mut include = String::new();
+    let mut exclude = String::new();
+
+    if include_pattern != None {
+        has_include = true;
+        include = include_pattern.unwrap();
+    }
+    if exclude_pattern != None {
+        has_exclude = true;
+        exclude = exclude_pattern.unwrap();
     }
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
@@ -99,30 +115,26 @@ pub fn file_name(args: &Vec<Token>) {
 
     let mut files: Vec<DirEntry> = vec![];
 
-    let name_pattern = name_pattern.unwrap();
-
     for item in dir {
         let item = item.unwrap();
         let md = item.metadata().unwrap();
 
         let filename = &item.file_name(); // gets the name (no file extension)
-        let filename = OsStr::to_str(&filename).unwrap();
+        let f = OsStr::to_str(&filename).unwrap();
 
         if md.is_file() {
-            if name_include_pattern && filename.contains(&name_pattern) {
+            if (has_include && has_exclude) && (f.contains(&include) && !f.contains(&exclude)) {
+                files.push(item);
+            }
+            else if (has_include && !has_exclude) && f.contains(&include) {
                 files.push(item);
             }
             // Only add file if it DOESN'T include the pattern (since it is exclude pattern)
-            else if name_exclude_pattern && !filename.contains(&name_pattern){
+            else if (has_exclude && !has_include) && !f.contains(&exclude) {
                 files.push(item);
             }
         }
-        else {
-            continue;
-        }
-
     }
-
 
     if *&files.len() == 0 {
         println!("There are no files to sort that match the given parameters");
@@ -133,16 +145,17 @@ pub fn file_name(args: &Vec<Token>) {
     // Make folder if necessary
     // TODO: Sort out the naming of the newly created folder
     let mut full_path = parent.clone();
-    full_path.push(&name_pattern);
+    let folder = "Sorted_By_Name".to_string();
+    full_path.push(&folder);
     if !Path::new(&full_path).exists() {
         let f = fs::create_dir(&full_path);
         match f {
             Ok(_) => {
                 println!("New folder '{}' has been created\n-->  Full path: \"{}\"", 
-                    &name_pattern, &full_path.display());
+                    &folder, &full_path.display());
             }
             Err(error) => {
-                println!("There was a problem creating the folder for \"{}\":\n{:?}", &name_pattern, error)
+                println!("There was a problem creating the folder for \"{}\":\n{:?}", &folder, error)
             }
         }
     }

@@ -112,13 +112,13 @@ Usage: cab name [<options>] <path>
 You have two options: sort files that includes the given string OR sort files that DO NOT contain the given string. The matches are case-sensitive and quotation marks should be used if there are spaces in the string.
 
 #### Remarks
-- The ability to use both these options to set include and exclude patterns will be added in the future.
+
 
 #### Examples
 ```
 cab name /path/to/folder --includes Copy
 cab name /path/to/folder --excludes important
-cab name -t downloads --includes "hello world"
+cab name -t downloads --includes "hello world" --excludes "earth"
 ```
 
 <br>
