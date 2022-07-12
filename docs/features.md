@@ -88,13 +88,13 @@ Usage: cab date [<options>] <path>
 When sorting by date modified, you must provide either a before or after date, using the `--before` and `--after` options respectively.
 
 #### Remarks
-- The ability to use both these options to set a date range will be added in the future.
+
 
 #### Examples
 ```
 cab date /path/to/folder --after 2022-02-01
 cab date /path/to/folder --before 2021-12-25
-cab date -t downloads --after 2021-04-01
+cab date -t downloads --after 2021-04-01 --before 2022-02-01
 ```
 
 <br>
