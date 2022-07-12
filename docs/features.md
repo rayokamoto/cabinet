@@ -88,13 +88,13 @@ Usage: cab date [<options>] <path>
 When sorting by date modified, you must provide either a before or after date, using the `--before` and `--after` options respectively.
 
 #### Remarks
-- The ability to use both these options to set a date range will be added in the future.
+
 
 #### Examples
 ```
 cab date /path/to/folder --after 2022-02-01
 cab date /path/to/folder --before 2021-12-25
-cab date -t downloads --after 2021-04-01
+cab date -t downloads --after 2021-04-01 --before 2022-02-01
 ```
 
 <br>
@@ -112,13 +112,13 @@ Usage: cab name [<options>] <path>
 You have two options: sort files that includes the given string OR sort files that DO NOT contain the given string. The matches are case-sensitive and quotation marks should be used if there are spaces in the string.
 
 #### Remarks
-- The ability to use both these options to set include and exclude patterns will be added in the future.
+
 
 #### Examples
 ```
 cab name /path/to/folder --includes Copy
 cab name /path/to/folder --excludes important
-cab name -t downloads --includes "hello world"
+cab name -t downloads --includes "hello world" --excludes "earth"
 ```
 
 <br>
@@ -130,19 +130,19 @@ Sort files by their size in KB (do not include 'KB' in the actual command)
 Usage: cab size [<options>] <path>
     -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
-    --lt <size>     Get files that are LESS THAN the specified size (in KB)
-    --gt <size>     Get files that are GREATER THAN the specified size (in KB)
+    --min <size>    Get files that are GREATER THAN the specified size (in KB)
+    --max <size>    Get files that are LESS THAN the specified size (in KB)
 ```
-You must specify whether you want to sort files that are less than or greater than the file size you specified. Use `--lt` to sort by files less than the specified size and `--gt` for files greater than the specified size. Note that currently, only sizes in KB is supported. NOTE: do not include "KB" in the actual command!
+You must specify whether you want to sort files that are less than or greater than the file size you specified. Use `--max` to sort by files less than the specified size and `--min` for files greater than the specified size. Note that currently, only sizes in KB is supported. NOTE: do not include "KB" in the actual command!
 
 #### Remarks
-- The ability to use both the `--lt` and `--gt` options to set a size range will be added in the future.
+- The ability to use a size other than KB (e.g. MB, GB) will be added in the future.
 
 #### Examples
 ```
-cab size /path/to/folder --lt 1000
-cab size /path/to/folder --gt 31
-cab size -t downloads --gt 1729
+cab size /path/to/folder --max 1000
+cab size /path/to/folder --min 31
+cab size -t downloads --min 10 --max 10000
 ```
 
 <br>

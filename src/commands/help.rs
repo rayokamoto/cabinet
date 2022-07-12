@@ -62,8 +62,8 @@ Sort files by their size in KB (do not include 'KB' in the actual command)
 Usage: cab size [<options>] <path>
     -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
     -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
-    --lt <size>     Get files that are LESS THAN the specified size (in KB)
-    --gt <size>     Get files that are GREATER THAN the specified size (in KB)
+    --min <size>    Get files that are GREATER THAN the specified size (in KB)
+    --max <size>    Get files that are LESS THAN the specified size (in KB)
 ")
     }
     // This should never be called

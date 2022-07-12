@@ -22,13 +22,11 @@ pub fn file_date(args: &Vec<Token>) {
     
     let mut path_type = ArgType::Absolute;
     let mut path: Option<PathBuf> = None;
-    let mut date: Option<String> = None;
-    let mut date_expected = false;
 
-    // TODO: Make it so that you can set a date range by invoking both --after and --before
-    // For checking if one or both dates were specified by user
-    let mut date_after = false;
-    let mut date_before = false;
+    // 0 - no date, 1 - date before, 2 - date after
+    let mut date_expected = 0;
+    let mut date_after: Option<String> = None;
+    let mut date_before: Option<String> = None;
 
     // Date pattern for YYYY-MM-DD
     let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
@@ -36,11 +34,31 @@ pub fn file_date(args: &Vec<Token>) {
     while argc > 0 {
         let arg = next_arg(&argc, &args);
         argc = argc - 1;
-        
-        if date_expected {
+
+
+        if date_expected == 1 {
+            if date_before != None {
+                println!("You have already provided a before date!");
+                exit(1);
+            }
             if re.is_match(&arg.value) {
-                date = Some(arg.value.clone());
-                date_expected = false;
+                date_before = Some(arg.value.clone());
+                date_expected = 0;
+            }
+            else {
+                println!("The provided date format was invalid. Please provide the date in YYYY-MM-DD format");
+                exit(1);
+            }
+            continue;
+        }
+        else if date_expected == 2 {
+            if date_after != None {
+                println!("You have already provided an after date!");
+                exit(1);
+            }
+            if re.is_match(&arg.value) {
+                date_after = Some(arg.value.clone());
+                date_expected = 0;
             }
             else {
                 println!("The provided date format was invalid. Please provide the date in YYYY-MM-DD format");
@@ -49,13 +67,12 @@ pub fn file_date(args: &Vec<Token>) {
             continue;
         }
 
+
         if ["--before"].contains(&&arg.value[..]) {
-            date_expected = true;
-            date_before = true;
+            date_expected = 1;
         }
         else if ["--after"].contains(&&arg.value[..]) {
-            date_expected = true;
-            date_after = true;
+            date_expected = 2;
         }
 
         else if ["-t", "--template"].contains(&&arg.value[..]) {
@@ -82,28 +99,54 @@ pub fn file_date(args: &Vec<Token>) {
             path = get_path(&arg.value, path_type);
             //break;
         }
-        
     }
 
 
     //println!("Path type: {:?}", &path_type);
     //println!("Date: {:?}", &date);
-    
+
     if path == None {
-        // no path or invalid path
+        // No path or invalid path
         println!("ERROR: There was no path provided, or the path was invalid");
         return;
     }
-    
+
     // Neither was provided
-    if (!date_before && !date_after) || date == None {
+    if date_before == None && date_after == None {
         println!("ERROR: A before or after date must be provided");
         return;
     }
 
-
     // TODO: Implement this feature for directories/folders
     // TODO: Deal with symlinks
+
+    let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
+
+    let mut has_before = false;
+    let mut has_after = false;
+    let mut before: i64 = 0;
+    let mut after: i64 = 0;
+
+    if date_before != None {
+        has_before = true;
+        let d = &date_before.as_ref().unwrap()[..];
+        let cap = re.captures(d).unwrap();
+        //let text = "2012-03-14, 2013-01-01 and 2014-07-05";
+        //for cap in re.captures_iter(text) {
+        //    println!("Day: {} Month: {} Year: {}", &cap[3], &cap[2], &cap[1]);
+        //}
+
+        let date_time = chrono::NaiveDate::from_ymd(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap()).and_hms(0, 0, 0);
+        before = date_time.timestamp();
+    }
+    if date_after != None {
+        has_after = true;
+        let d = &date_after.as_ref().unwrap()[..];
+        let cap = re.captures(d).unwrap();
+        let date_time = chrono::NaiveDate::from_ymd(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap()).and_hms(0, 0, 0);
+        after = date_time.timestamp();
+    }
+
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
@@ -115,7 +158,7 @@ pub fn file_date(args: &Vec<Token>) {
     for item in dir {
         let item = item.unwrap();
         let md = item.metadata().unwrap();
-        //let md = fs::metadata(item)?; // Alternative
+        //let md = fs::metadata(item)?; // Alternative method
 
         if md.is_file() {
             //if let Ok(time) = md.modified() {
@@ -126,35 +169,18 @@ pub fn file_date(args: &Vec<Token>) {
 
             let time = md.modified().unwrap().duration_since(UNIX_EPOCH).unwrap(); // TODO: error handling
             let dur = chrono::Duration::from_std(time).unwrap();
-            
-            // this is needed otherwise parsing won't work. maybe because re was consumed earlier?
-            let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
-            //let text = "2012-03-14, 2013-01-01 and 2014-07-05";
-            //for cap in re.captures_iter(text) {
-            //    println!("Day: {} Month: {} Year: {}", &cap[3], &cap[2], &cap[1]);
-            //}
-            
-            let text = &date.as_ref().unwrap()[..];
-            let cap = re.captures(text).unwrap();
-            //println!("Day: {} Month: {} Year: {}", &cap[3], &cap[2], &cap[1]);
-            
-            let date_time = chrono::NaiveDate::from_ymd(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap()).and_hms(0, 0, 0);
-            
-            let user_date = date_time.timestamp();
             let file_date = dur.num_seconds();
-            
-            if date_before && file_date <= user_date {
+
+            if (has_before && has_after) && (file_date >= after && file_date <= before) {
                 files.push(item);
             }
-            else if date_after && file_date >= user_date {
+            else if (has_before && !has_after) && file_date <= before {
+                files.push(item);
+            }
+            else if (has_after && !has_before) && file_date >= after {
                 files.push(item);
             }
         }
-        else {
-            continue;
-        }
-
-
     }
 
 
@@ -165,7 +191,7 @@ pub fn file_date(args: &Vec<Token>) {
     println!("Found {} files that are able to be sorted", &files.len());
     
     // Make folder if necessary
-    let date = date.unwrap();
+    let date = "Sorted_By_Date".to_string();
     let mut full_path = parent.clone();
     full_path.push(&date);
     if !Path::new(&full_path).exists() {

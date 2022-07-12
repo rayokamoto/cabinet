@@ -6,18 +6,6 @@ file name and date modified.
 
 ---
 
-In future, options to do things like renaming and deleting a bunch of files may be implemented,
-though that is not a priority.
-
-### Currently implemented:
-* [x] Sort by file type
-* [x] Sort by date modified
-* [x] Sort by file name
-* [x] Sort by file size
-* [ ] Load commands from a config or task file
-
----
-
 ## Installation
 Clone the repository 
 ```
