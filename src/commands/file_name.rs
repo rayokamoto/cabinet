@@ -181,5 +181,4 @@ pub fn file_name(args: &Vec<Token>) {
     println!("Time taken: {:?}", duration);
     println!("Sorted {}/{} files into folders", &files_sorted, &files.len());
 
-
 }
