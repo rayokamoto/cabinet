@@ -18,7 +18,7 @@ cargo build --release
 
 ## Usage
 ```
-cab <command> [<options>] [<path>]
+cab <command> [options] [<path>]
 ```
 
 <h3 align="center">
