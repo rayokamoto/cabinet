@@ -1,14 +1,15 @@
-pub mod help;
-pub mod file_date;
-pub mod file_name;
-pub mod file_size;
-pub mod file_type;
+use clap::Command;
 
-pub fn get_subcommands() -> Vec<String> {
+pub mod date;
+pub mod file_type;
+pub mod name;
+pub mod size;
+
+pub fn builtin() -> Vec<Command> {
     vec![
-        String::from("date"),
-        String::from("name"),
-        String::from("size"),
-        String::from("type"),
+        date::cli(),
+        name::cli(),
+        size::cli(),
+        file_type::cli()
     ]
 }

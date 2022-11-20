@@ -1,102 +1,69 @@
 use std::fs::{self, DirEntry};
 use std::io::{stdout, Write};
 use std::path::{PathBuf, Path};
-use std::process::exit;
 use std::time::Instant;
 
-use crate::parser::Token;
-use crate::path::{get_path, ArgType};
+use clap::{Arg, ArgMatches, Command};
 
-fn next_arg(argc: &usize, argv: &Vec<Token>) -> Token {
-    assert!(argc > &0);
-    //argc - 1;
-    let arg_len = &argv.len();
-    argv[arg_len - argc].clone()
+use crate::path::get_path;
+
+pub fn cli() -> Command {
+    Command::new("size")
+        .about("Sort files by their size in KB (do not include 'KB' in the actual command)")
+        .alias("S")
+        .args([
+            Arg::new("template")
+                .short('t')
+                .long("template")
+                .help("The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)")
+                .action(clap::ArgAction::SetTrue),
+            Arg::new("min")
+                .long("min")
+                .value_name("size")
+                .help("Get files that are GREATER THAN the specified size (in KB)")
+                .action(clap::ArgAction::Set),
+            Arg::new("max")
+                .long("max")
+                .value_name("size")
+                .help("Get files that are LESS THAN the specified size (in KB)")
+                .action(clap::ArgAction::Set),
+        ])
+        .arg_required_else_help(true)
+        .arg(
+            Arg::new("path")
+            .action(clap::ArgAction::Set)
+            .value_name("PATH")
+            .required(true)
+        )
+        .subcommand_value_name("PATH")
 }
 
-/// Sort files by their size
-pub fn file_size(args: &Vec<Token>) {
-    let mut argc = args.len() - 1; // since we want to ignore subcommand itself
-
+pub fn exec(args: &ArgMatches) {
     let mut path: Option<PathBuf> = None;
-    let mut path_type = ArgType::Absolute;
-
-    // size_expected: 0 for not expecting (false), 1 for min size, 2 for max size
-    let mut size_expected = 0;
     let mut size_min: Option<String> = None;
     let mut size_max: Option<String> = None;
 
-    while argc > 0 {
-        let arg = next_arg(&argc, &args);
-        argc = argc - 1;
-        
-        // TODO: use match statement?
-        if size_expected == 1 {
-            if size_min != None {
-                println!("You have already provided a minimum file size!");
-                exit(1);
-            }
-            size_min = Some(arg.value.clone());
-            size_expected = 0;
-            continue;
-        }
-        else if size_expected == 2 {
-            if size_max != None {
-                println!("You have already provided a maximum file size!");
-                exit(1);
-            }
-            size_max = Some(arg.value.clone());
-            size_expected = 0;
-            continue;
-        }
+    let use_template = args.get_flag("template");
 
-        if ["--min"].contains(&&arg.value[..]) {
-            size_expected = 1;
-        }
-        else if ["--max"].contains(&&arg.value[..]) {
-            size_expected = 2;
-        }
-        else if ["-t", "--template"].contains(&&arg.value[..]) {
-            if argc <= 0 {
-                println!("No path provided!");
-                exit(1);
-            }
-            path_type = ArgType::Template;
-        }
-        else if ["-p", "--path"].contains(&&arg.value[..]) {
-            if argc <= 0 {
-                println!("No path provided!");
-                exit(1);
-            }
-            path_type = ArgType::Absolute;
-        }
-        else if arg.value.starts_with("--") || arg.value.starts_with("-"){
-            println!("Not a valid argument/flag");
-            exit(1);
-        }
-        else {
-            // we assume that it is the path
-            //println!("Assuming path was provided.");
-            path = get_path(&arg.value, path_type);
-            //break;
-        }
+    if let Some(p) = args.get_one::<String>("path") {
+        path = get_path(p, use_template);
+    }
+    if let Some(min) = args.get_one::<String>("min") {
+        size_min = Some(min.to_string());
+    }
+    if let Some(max) = args.get_one::<String>("max") {
+        size_max = Some(max.to_string());
     }
 
 
     if path == None {
-        // No path or invalid path
-        println!("ERROR: There was no path provided, or the path was invalid");
+        println!("ERROR: The path is invalid");
         return;
     }
 
     // Neither was provided
     if size_min == None && size_max == None {
         println!("ERROR: A min or max size (or both) must be provided");
-        return;
-    }
-
-    if  size_min.clone().unwrap().parse::<i64>().unwrap() < 0 || size_max.clone().unwrap().parse::<i64>().unwrap() < 0 {
-        println!("ERROR: Negative values cannot be used as file sizes");
         return;
     }
 
@@ -108,10 +75,18 @@ pub fn file_size(args: &Vec<Token>) {
     if size_min != None {
         has_min = true;
         min = size_min.clone().unwrap().parse::<u64>().unwrap();
+        if &min < &0 {
+            println!("ERROR: Negative values cannot be used as file sizes");
+        return;
+        }
     }
     if size_max != None {
         has_max = true;
         max = size_max.clone().unwrap().parse::<u64>().unwrap();
+        if &max < &0 {
+            println!("ERROR: Negative values cannot be used as file sizes");
+        return;
+        }
     }
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
@@ -185,5 +160,4 @@ pub fn file_size(args: &Vec<Token>) {
     print!("\rProcessed 100%   \n"); 
     println!("Time taken: {:?}", duration);
     println!("Sorted {}/{} files into folders", &files_sorted, &files.len());
-
 }

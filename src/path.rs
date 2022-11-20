@@ -2,22 +2,11 @@ use std::path::{Path, PathBuf};
 
 use dirs;
 
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum ArgType {
-    Absolute,
-    Template,
-    //None,
-    //Help,
-}
-
-/// Get filepath object
-/// 
-/// Only called when it is a valid path option -p or -t
-pub fn get_path(path: &String, path_type: ArgType) -> Option<PathBuf> {
+/// Get filepath object. Only called when it is a valid path option -p or -t
+pub fn get_path(path: &String, use_template: bool) -> Option<PathBuf> {
     let mut path_ref: Option<PathBuf> = None;
 
-    if path_type == ArgType::Template {
+    if use_template {
         let path = &path.to_lowercase()[..];
         match path {
             "documents"         => path_ref = dirs::document_dir(),
@@ -30,17 +19,13 @@ pub fn get_path(path: &String, path_type: ArgType) -> Option<PathBuf> {
             _ => println!("The template '{}' does not exist.", &path)
         }
     }
-    else if path_type == ArgType::Absolute {
+    else {
         if Path::new(path).exists() {
             path_ref = Some(PathBuf::from(path));
         }
         else {
             println!("Directory \"{}\" either does not exist or this program is missing permissions to access it.", &path);
         }
-    }
-    else {
-        // This should never be called.
-        println!("Not a valid path type.");
     }
 
     path_ref

@@ -1,113 +1,72 @@
 use std::fs::{self, DirEntry};
 use std::io::{stdout, Write};
-use std::path::{Path, PathBuf};
-use std::process::exit;
-use std::time::{Instant, UNIX_EPOCH};
+use std::path::{PathBuf, Path};
+use std::time::{UNIX_EPOCH, Instant};
 
-use chrono;
+use chrono::{self, NaiveDateTime};
+use clap;
+use clap::{Arg, ArgMatches, Command};
 use regex::Regex;
 
-use crate::parser::Token;
-use crate::path::{get_path, ArgType};
+use crate::path::get_path;
 
-fn next_arg(argc: &usize, argv: &Vec<Token>) -> Token {
-    assert!(argc > &0);
-    //argc - 1;
-    let arg_len = &argv.len();
-    argv[arg_len - argc].clone()
+pub fn cli() -> Command {
+    Command::new("date")
+        .about("Sort files by their date of modification")
+        .alias("D")
+        .args([
+            Arg::new("template")
+                .short('t')
+                .long("template")
+                .help("The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)")
+                .action(clap::ArgAction::SetTrue),
+            Arg::new("before")
+                .long("before")
+                .value_name("date")
+                .help("Get files from before the specified date. Date format is YYYY-MM-DD")
+                .action(clap::ArgAction::Set),
+            Arg::new("after")
+                .long("after")
+                .value_name("date")
+                .help("Get files from after the specified date. Date format is YYYY-MM-DD")
+                .action(clap::ArgAction::Set),
+        ])
+        .arg_required_else_help(true)
+        .arg(
+            Arg::new("path")
+            .action(clap::ArgAction::Set)
+            .value_name("PATH")
+            .required(true)
+        )
+        .subcommand_value_name("PATH")
 }
 
-pub fn file_date(args: &Vec<Token>) {
-    let mut argc = args.len() - 1; // since we want to ignore subcommand itself
-    
-    let mut path_type = ArgType::Absolute;
+pub fn exec(args: &ArgMatches) {
     let mut path: Option<PathBuf> = None;
-
-    // 0 - no date, 1 - date before, 2 - date after
-    let mut date_expected = 0;
     let mut date_after: Option<String> = None;
     let mut date_before: Option<String> = None;
 
     // Date pattern for YYYY-MM-DD
     let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
 
-    while argc > 0 {
-        let arg = next_arg(&argc, &args);
-        argc = argc - 1;
+    let use_template = args.get_flag("template");
 
-
-        if date_expected == 1 {
-            if date_before != None {
-                println!("You have already provided a before date!");
-                exit(1);
-            }
-            if re.is_match(&arg.value) {
-                date_before = Some(arg.value.clone());
-                date_expected = 0;
-            }
-            else {
-                println!("The provided date format was invalid. Please provide the date in YYYY-MM-DD format");
-                exit(1);
-            }
-            continue;
+    if let Some(p) = args.get_one::<String>("path") {
+        path = get_path(p, use_template);
+    }
+    if let Some(after) = args.get_one::<String>("after") {
+        if re.is_match(after) {
+            date_after = Some(after.to_string());
         }
-        else if date_expected == 2 {
-            if date_after != None {
-                println!("You have already provided an after date!");
-                exit(1);
-            }
-            if re.is_match(&arg.value) {
-                date_after = Some(arg.value.clone());
-                date_expected = 0;
-            }
-            else {
-                println!("The provided date format was invalid. Please provide the date in YYYY-MM-DD format");
-                exit(1);
-            }
-            continue;
-        }
-
-
-        if ["--before"].contains(&&arg.value[..]) {
-            date_expected = 1;
-        }
-        else if ["--after"].contains(&&arg.value[..]) {
-            date_expected = 2;
-        }
-
-        else if ["-t", "--template"].contains(&&arg.value[..]) {
-            if argc <= 0 {
-                println!("No path provided!");
-                exit(1);
-            }
-            path_type = ArgType::Template;
-        }
-        else if ["-p", "--path"].contains(&&arg.value[..]) {
-            if argc <= 0 {
-                println!("No path provided!");
-                exit(1);
-            }
-            path_type = ArgType::Absolute;
-        }
-        else if arg.value.starts_with("--") || arg.value.starts_with("-"){
-            println!("Not a valid argument/flag");
-            exit(1);
-        }
-        else {
-            // we assume that it is the path
-            //println!("Assuming path was provided.");
-            path = get_path(&arg.value, path_type);
-            //break;
+    }
+    if let Some(before) = args.get_one::<String>("before") {
+        if re.is_match(before) {
+            date_before = Some(before.to_string());
         }
     }
 
-
-    //println!("Path type: {:?}", &path_type);
-    //println!("Date: {:?}", &date);
-
     if path == None {
-        // No path or invalid path
-        println!("ERROR: There was no path provided, or the path was invalid");
+        println!("ERROR: The path is invalid");
         return;
     }
 
@@ -136,17 +95,33 @@ pub fn file_date(args: &Vec<Token>) {
         //    println!("Day: {} Month: {} Year: {}", &cap[3], &cap[2], &cap[1]);
         //}
 
-        let date_time = chrono::NaiveDate::from_ymd(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap()).and_hms(0, 0, 0);
-        before = date_time.timestamp();
+        let date_time = chrono::NaiveDate::from_ymd_opt(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap());
+        let naive_date_time: NaiveDateTime;
+        match date_time {
+            Some(d) => naive_date_time = d.and_hms_opt(0, 0, 0).unwrap(),
+            None => {
+                println!("ERROR: Invalid date conversion");
+                return;
+            }
+        }
+        before = naive_date_time.timestamp();
     }
     if date_after != None {
         has_after = true;
         let d = &date_after.as_ref().unwrap()[..];
         let cap = re.captures(d).unwrap();
-        let date_time = chrono::NaiveDate::from_ymd(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap()).and_hms(0, 0, 0);
-        after = date_time.timestamp();
-    }
+        let date_time = chrono::NaiveDate::from_ymd_opt(cap[1].parse::<i32>().unwrap(), cap[2].parse::<u32>().unwrap(), cap[3].parse::<u32>().unwrap());
+        let naive_date_time: NaiveDateTime;
+        match date_time {
+            Some(d) => naive_date_time = d.and_hms_opt(0, 0, 0).unwrap(),
+            None => {
+                println!("ERROR: Invalid date conversion");
+                return;
+            }
+        }
 
+        after = naive_date_time.timestamp();
+    }
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
@@ -182,7 +157,6 @@ pub fn file_date(args: &Vec<Token>) {
             }
         }
     }
-
 
     if *&files.len() == 0 {
         println!("There are no files to sort that match the given parameters");
@@ -227,5 +201,4 @@ pub fn file_date(args: &Vec<Token>) {
     print!("\rProcessed 100%   \n"); 
     println!("Time taken: {:?}", duration);
     println!("Sorted {}/{} files into folders", &files_sorted, &files.len());
-
 }
