@@ -13,6 +13,11 @@ In general, the way commands work is as follows:
 - Provide a path to sort (use absolute or template)
 - Add any other required/optional arguments
 
+### Usage
+```
+cab <command> [options] [<path>]
+```
+
 ### List of Commands
 Currently implemented commands:
 - `type`
@@ -73,7 +78,7 @@ These are command-specific and are documented under the [commands](#commands) se
 ## Commands
 A general overview of the commands available.
 
-For help on a command, type `cab <command> --help`.
+For help on a command, type `cab help <command>`.
 
 ### date
 ```
@@ -181,6 +186,5 @@ Options:
 #### Examples
 ```
 cab type /path/to/folder
-cab type -p /path/to/folder
 cab type -t downloads
 ```
