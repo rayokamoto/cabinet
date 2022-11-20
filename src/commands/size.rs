@@ -67,11 +67,6 @@ pub fn exec(args: &ArgMatches) {
         return;
     }
 
-    if  size_min.clone().unwrap().parse::<i64>().unwrap() < 0 || size_max.clone().unwrap().parse::<i64>().unwrap() < 0 {
-        println!("ERROR: Negative values cannot be used as file sizes");
-        return;
-    }
-
     let mut has_min = false;
     let mut has_max = false;
     let mut min: u64 = 0;
@@ -80,10 +75,18 @@ pub fn exec(args: &ArgMatches) {
     if size_min != None {
         has_min = true;
         min = size_min.clone().unwrap().parse::<u64>().unwrap();
+        if &min < &0 {
+            println!("ERROR: Negative values cannot be used as file sizes");
+        return;
+        }
     }
     if size_max != None {
         has_max = true;
         max = size_max.clone().unwrap().parse::<u64>().unwrap();
+        if &max < &0 {
+            println!("ERROR: Negative values cannot be used as file sizes");
+        return;
+        }
     }
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
