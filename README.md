@@ -1,6 +1,5 @@
 # Cabinet
-Cross-platform file sorting system that sorts files based on their attributes, such as file type,
-file name and date modified.
+A convenient, cross-platform file sorting system that sorts files based on their attributes, such as file type, file name, and date modified.
 
 #### *Disclaimer: Note that features may be added, revised, or removed at any time as this is in active development*
 
@@ -19,7 +18,7 @@ cargo build --release
 
 ## Usage
 ```
-cab <command> [<options>] <path>
+cab <command> [<options>] [<path>]
 ```
 
 <h3 align="center">
@@ -32,14 +31,11 @@ cab <command> [<options>] <path>
 * `name` - Sort by name of file (by whether given pattern is in the name or not)
 * `size` - Sort by size of file in KB (by whether file is smaller or larger than given size)
 
-There are two options for sorting files: absolute path and path templates:
-#### Using absolute paths
-Use `-p` or `--path` to use absolute or relative paths. The absolute path option is used by default. Note that if the directory that you are sorting is in the same directory as `cab`, then you can just use relative paths. 
-```
-cab type -p "C:\Users\User\Downloads"
-cab type -p "/home/User/Downloads"
-```
-No flags provided will default to absolute path:
+There are two options for sorting files: normal paths and path templates:
+#### Using normal paths
+When you run a command, you must provide a path/directory to sort. Relative paths also work - e.g. if you are in a directory with the folder `projects`, simply typing `projects` as your path will work.
+
+No flags provided will default to using normal paths:
 ```
 cab type "C:\Users\User\Downloads"
 cab type "/home/User/Downloads"

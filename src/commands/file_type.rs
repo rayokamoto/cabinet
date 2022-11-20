@@ -3,62 +3,44 @@ use std::fs;
 use std::fs::DirEntry;
 use std::io::{stdout, Write};
 use std::path::{Path, PathBuf};
-use std::process::exit;
 use std::time::Instant;
 
-use crate::parser::Token;
-use crate::path::{get_path, ArgType};
+use clap::{Arg, ArgMatches, Command};
 
+use crate::path::get_path;
 
-fn next_arg(argc: &usize, argv: &Vec<Token>) -> Token {
-    assert!(argc > &0);
-    //argc - 1;
-    let arg_len = &argv.len();
-    argv[arg_len - argc].clone()
+pub fn cli() -> Command {
+    Command::new("type")
+        .about("Sort files by file type")
+        .alias("T")
+        .args([
+            Arg::new("template")
+                .short('t')
+                .long("template")
+                .help("The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)")
+                .action(clap::ArgAction::SetTrue),
+        ])
+        .arg_required_else_help(true)
+        .arg(
+            Arg::new("path")
+            .action(clap::ArgAction::Set)
+            .value_name("PATH")
+            .required(true)
+        )
+        .subcommand_value_name("PATH")
 }
 
-/// Sort files based on their file type (file extension)
-pub fn file_type(args: &Vec<Token>) {
-    let mut argc = args.len() - 1; // since we want to ignore subcommand itself
-    
+pub fn exec(args: &ArgMatches) {
     let mut path: Option<PathBuf> = None;
-    let mut path_type = ArgType::Absolute;
-    
-    while argc > 0 {
-        let arg = next_arg(&argc, &args);
-        argc = argc - 1;
-        
-        if ["-t", "--template"].contains(&&arg.value[..]) {
-            if argc <= 0 {
-                println!("No path provided!");
-                exit(1);
-            }
-            path_type = ArgType::Template;
-        }
-        else if ["-p", "--path"].contains(&&arg.value[..]) {
-            if argc <= 0 {
-                println!("No path provided!");
-                exit(1);
-            }
-            path_type = ArgType::Absolute;
-        }
-        else if arg.value.starts_with("--") || arg.value.starts_with("-"){
-            println!("Not a valid argument/flag");
-            exit(1);
-        }
-        else {
-            // we assume that it is the path
-            //println!("Assuming path was provided.");
-            path = get_path(&arg.value, path_type);
-            break;
-        }
-        
+
+    let use_template = args.get_flag("template");
+
+    if let Some(p) = args.get_one::<String>("path") {
+        path = get_path(p, use_template);
     }
 
-    //println!("Path type: {:?}", &path_type);
-    
     if path == None {
-        // no path or invalid path
+        println!("ERROR: The path is invalid");
         return;
     }
 
@@ -197,5 +179,4 @@ pub fn file_type(args: &Vec<Token>) {
 
     //println!("{:?}", &files);
     //println!("{:?}", &file_types);
-
 }

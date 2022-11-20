@@ -24,14 +24,14 @@ Other commands:
 - `help`
 
 Future commands:
-
+- `sort`/`multisort` - Sort files with multiple options (combination of all the sorting commands)
 
 ### Path
 You have two options when providing a path:
-- Absolute path 
+- Normal path 
 - Template path
 
-When you run a command, you must provide a path/directory to sort. If no path option is provided, it defaults to using the absolute path. Otherwise, you can refer to the absolute path using the `-p` or `--path` options. Relative paths also work. E.g. you are in a directory with the folder `projects`, simply typing `projects` as your path will work.
+When you run a command, you must provide a path/directory to sort. Relative paths also work - e.g. if you are in a directory with the folder `projects`, simply typing `projects` as your path will work.
 
 Example
 ```
@@ -77,18 +77,23 @@ For help on a command, type `cab <command> --help`.
 
 ### date
 ```
-Sort files by the date modified
+Sort files by their date of modification
 
-Usage: cab date [<options>] <path>
-    -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
-    -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
-    --before <date> Get files from before specified date. Date format is YYYY-MM-DD
-    --after <date>  Get files from after specified date. Date format is YYYY-MM-DD
+Usage: cab date [OPTIONS] <PATH>
+
+Arguments:
+  <PATH>
+
+Options:
+  -t, --template       The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
+      --before <date>  Get files from before the specified date. Date format is YYYY-MM-DD
+      --after <date>   Get files from after the specified date. Date format is YYYY-MM-DD
+  -h, --help           Print help information
 ```
-When sorting by date modified, you must provide either a before or after date, using the `--before` and `--after` options respectively.
+When sorting by date modified, you must provide either a before or after date, or both, using the `--before` and `--after` options respectively.
 
 #### Remarks
-
+None
 
 #### Examples
 ```
@@ -101,18 +106,23 @@ cab date -t downloads --after 2021-04-01 --before 2022-02-01
 
 ### name
 ```
-Sort files by their name
+Sort files by file name
 
-Usage: cab name [<options>] <path>
-    -p, --path          The path you are using is an absolute or relative path. Absolute path is the default option
-    -t, --template      The path you are using is a predefined one. E.g. downloads for your downloads folder
-    --includes <match>  File name includes...
-    --excludes <match>  File name excludes...
+Usage: cab name [OPTIONS] <PATH>
+
+Arguments:
+  <PATH>
+
+Options:
+  -t, --template          The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
+      --includes <match>  File name includes...
+      --excludes <match>  File name excludes...
+  -h, --help              Print help information
 ```
-You have two options: sort files that includes the given string OR sort files that DO NOT contain the given string. The matches are case-sensitive and quotation marks should be used if there are spaces in the string.
+Sort files that includes the given string OR sort files that DO NOT contain the given string. Both options can be provided at once, although at least one must be provided. The matches are case-sensitive and quotation marks should be used if there are spaces in the string.
 
 #### Remarks
-
+None
 
 #### Examples
 ```
@@ -127,13 +137,18 @@ cab name -t downloads --includes "hello world" --excludes "earth"
 ```
 Sort files by their size in KB (do not include 'KB' in the actual command)
 
-Usage: cab size [<options>] <path>
-    -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
-    -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
-    --min <size>    Get files that are GREATER THAN the specified size (in KB)
-    --max <size>    Get files that are LESS THAN the specified size (in KB)
+Usage: cab size [OPTIONS] <PATH>
+
+Arguments:
+  <PATH>
+
+Options:
+  -t, --template    The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
+      --min <size>  Get files that are GREATER THAN the specified size (in KB)
+      --max <size>  Get files that are LESS THAN the specified size (in KB)
+  -h, --help        Print help information
 ```
-You must specify whether you want to sort files that are less than or greater than the file size you specified. Use `--max` to sort by files less than the specified size and `--min` for files greater than the specified size. Note that currently, only sizes in KB is supported. NOTE: do not include "KB" in the actual command!
+Specify whether you want to sort files that are less than or greater than the file size you specified. Use `--max` to sort by files less than the specified size and `--min` for files greater than the specified size. Currently, only sizes in KB is supported. NOTE: do not include "KB" in the actual command!
 
 #### Remarks
 - The ability to use a size other than KB (e.g. MB, GB) will be added in the future.
@@ -151,12 +166,17 @@ cab size -t downloads --min 10 --max 10000
 ```
 Sort files by file type
 
-Usage: cab type [<options>] <path>
-    -p, --path      The path you are using is an absolute or relative path. Absolute path is the default option
-    -t, --template  The path you are using is a predefined one. E.g. downloads for your downloads folder
+Usage: cab type [OPTIONS] <PATH>
+
+Arguments:
+  <PATH>
+
+Options:
+  -t, --template  The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
+  -h, --help      Print help information
 ```
 #### Remarks
-- The option to specify only one file type may be added in the future.
+- The option to specify only one file type will be added in the future.
 
 #### Examples
 ```
