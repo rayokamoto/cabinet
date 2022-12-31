@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use dirs;
 
-/// Get filepath object. Only called when it is a valid path option -p or -t
+/// Get filepath object. Only called when it is a valid path or template path
 pub fn get_path(path: &String, use_template: bool) -> Option<PathBuf> {
     let mut path_ref: Option<PathBuf> = None;
 

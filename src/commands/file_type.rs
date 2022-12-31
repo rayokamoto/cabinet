@@ -8,6 +8,7 @@ use std::time::Instant;
 use clap::{Arg, ArgMatches, Command};
 
 use crate::path::get_path;
+use crate::utils;
 
 pub fn cli() -> Command {
     Command::new("type")
@@ -116,20 +117,7 @@ pub fn exec(args: &ArgMatches) {
         let mut full_path = parent.clone(); 
         // cannot reference (&) since we would be pushing to that reference below:
         full_path.push(&file_type);
-
-        //println!("Full path: {:?}", &full_path);
-        if !Path::new(&full_path).exists() {
-            let f = fs::create_dir(&full_path);
-            match f {
-                Ok(_) => {
-                    println!("New folder for '.{}' with name '{}' has been created\n-->  Full path: \"{}\"", 
-                    &file_type, &file_type, &full_path.display());
-                },
-                Err(error) => {
-                    println!("There was a problem creating the folder for \"{}\":\n{:?}", &file_type, error)
-                }
-            };
-        }
+        utils::create_folder(&full_path, &file_type)
     }
 
     let mut files_sorted: f64 = 0.0;

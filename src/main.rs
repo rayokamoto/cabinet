@@ -1,7 +1,8 @@
-use clap::Command;
+use clap::{Arg, ArgAction, Command};
 
 mod commands;
 mod path;
+mod utils;
 
 const NAME: &str = "Cabinet";
 const BIN_NAME: &str = "cab";
@@ -23,7 +24,14 @@ fn main() {
         .arg_required_else_help(true)
         .override_usage(usage_text)
         .after_help(after_help_text)
-        .subcommands(commands::builtin());
+        .subcommands(commands::builtin())
+        .args([
+            Arg::new("output-name")
+                .short('o')
+                .long("output")
+                .help("Specify the name of the output folder") // TODO: What to do when sorting by file type?
+                .action(ArgAction::Set),
+        ]);
 
     let matches = cabinet.get_matches();
 

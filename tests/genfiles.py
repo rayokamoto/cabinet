@@ -14,7 +14,7 @@ def clean(path):
             shutil.rmtree(f)
         else:
             print("Object was not a file or directory.")
-    
+
     print("All files and/or directories have been removed.")
 
 
@@ -23,12 +23,12 @@ def main(argv, argc):
     # The directory where this file is run from
     cwd = os.getcwd()
     path = cwd + "/test_dir"
-    FILE_COUNT = 2
-    
+    FILE_COUNT = 1000
+
     if argc == 0:
         if not os.path.isdir(path):
             os.mkdir(path)
-        
+
         # TODO: Test file types with invalid unicode
         file_types = [
             "abc",
@@ -50,7 +50,6 @@ def main(argv, argc):
         clean(path)
     else:
         pass
-        
 
 
 if __name__ == "__main__":

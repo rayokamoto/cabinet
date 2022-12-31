@@ -1,33 +1,33 @@
-use std::path::{PathBuf, Path};
+use std::ffi::OsStr;
 use std::fs::{self, DirEntry};
-use std::ffi::OsStr; 
-use std::time::Instant;
-use std::io::{stdout, Write};
+use std::path::PathBuf;
 
 use clap::{Arg, ArgMatches, Command};
 
 use crate::path::get_path;
+use crate::utils;
 
 pub fn cli() -> Command {
     Command::new("name")
         .about("Sort files by file name")
-        .alias("N")
         .args([
-            Arg::new("template")
-                .short('t')
-                .long("template")
-                .help("The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)")
-                .action(clap::ArgAction::SetTrue),
             Arg::new("includes")
+                .short('I')
                 .long("includes")
                 .value_name("match")
                 .help("File name includes...")
                 .action(clap::ArgAction::Set),
             Arg::new("excludes")
+                .short('E')
                 .long("excludes")
                 .value_name("match")
                 .help("File name excludes...")
                 .action(clap::ArgAction::Set),
+            Arg::new("template")
+                .short('t')
+                .long("template")
+                .help("The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)")
+                .action(clap::ArgAction::SetTrue),
         ])
         .arg_required_else_help(true)
         .arg(
@@ -98,8 +98,7 @@ pub fn exec(args: &ArgMatches) {
         if md.is_file() {
             if (has_include && has_exclude) && (f.contains(&include) && !f.contains(&exclude)) {
                 files.push(item);
-            }
-            else if (has_include && !has_exclude) && f.contains(&include) {
+            } else if (has_include && !has_exclude) && f.contains(&include) {
                 files.push(item);
             }
             // Only add file if it DOESN'T include the pattern (since it is exclude pattern)
@@ -116,41 +115,18 @@ pub fn exec(args: &ArgMatches) {
     println!("Found {} files that are able to be sorted", &files.len());
 
     // Make folder if necessary
-    // TODO: Sort out the naming of the newly created folder
+    let mut folder = utils::set_folder_name("Sorted_by_Name".to_string());
+
+    if let Some(out_name) = args.get_one::<String>("output") {
+        if !&out_name.is_empty() {
+            folder = utils::set_folder_name(out_name.to_string());
+        }
+    }
+
     let mut full_path = parent.clone();
-    let folder = "Sorted_By_Name".to_string();
     full_path.push(&folder);
-    if !Path::new(&full_path).exists() {
-        let f = fs::create_dir(&full_path);
-        match f {
-            Ok(_) => {
-                println!("New folder '{}' has been created\n-->  Full path: \"{}\"", 
-                    &folder, &full_path.display());
-            }
-            Err(error) => {
-                println!("There was a problem creating the folder for \"{}\":\n{:?}", &folder, error)
-            }
-        }
-    }
 
-    let mut files_sorted: f64 = 0.0;
-    let start = Instant::now();
-    let mut stdout = stdout();
-    for (idx, file) in files.iter().enumerate() {
-        let done = idx as f64 / *&files.len() as f64;
-        //let full_path = parent.clone().join(&date);
-        let f = fs::rename(file.path(), full_path.join(file.file_name()));
-        match f {
-            Ok(_) => files_sorted += 1.0,
-            Err(error) => println!("There was a problem opening the file:\n{:?}", error)
-        }
+    utils::create_folder(&full_path, &folder);
 
-        print!("\rProcessing {:.1}%", done * 100.0);
-        stdout.flush().unwrap();
-    }
-    let duration = start.elapsed();
-    stdout.flush().unwrap();
-    print!("\rProcessed 100%   \n"); 
-    println!("Time taken: {:?}", duration);
-    println!("Sorted {}/{} files into folders", &files_sorted, &files.len());
+    utils::sort_files(&full_path, &files);
 }

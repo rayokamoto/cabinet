@@ -10,7 +10,7 @@ This is an overview of the features that are currently available.
 
 In general, the way commands work is as follows:
 - Type the command (method you want to sort by)
-- Provide a path to sort (use absolute or template)
+- Provide a path to sort (using normal or template)
 - Add any other required/optional arguments
 
 ### Usage
