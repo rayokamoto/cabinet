@@ -9,21 +9,19 @@ pub fn get_path(path: &String, use_template: bool) -> Option<PathBuf> {
     if use_template {
         let path = &path.to_lowercase()[..];
         match path {
-            "documents"         => path_ref = dirs::document_dir(),
-            "downloads"         => path_ref = dirs::download_dir(),
-            "desktop"           => path_ref = dirs::desktop_dir(),
-            "home"              => path_ref = dirs::home_dir(),
-            "music" | "audio"   => path_ref = dirs::audio_dir(),
-            "pictures"          => path_ref = dirs::picture_dir(),
+            "documents" => path_ref = dirs::document_dir(),
+            "downloads" => path_ref = dirs::download_dir(),
+            "desktop" => path_ref = dirs::desktop_dir(),
+            "home" => path_ref = dirs::home_dir(),
+            "music" | "audio" => path_ref = dirs::audio_dir(),
+            "pictures" => path_ref = dirs::picture_dir(),
             "videos" | "movies" => path_ref = dirs::video_dir(),
-            _ => println!("The template '{}' does not exist.", &path)
+            _ => println!("The template '{}' does not exist.", &path),
         }
-    }
-    else {
+    } else {
         if Path::new(path).exists() {
             path_ref = Some(PathBuf::from(path));
-        }
-        else {
+        } else {
             println!("Directory \"{}\" either does not exist or this program is missing permissions to access it.", &path);
         }
     }

@@ -1,4 +1,4 @@
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, Command};
 
 mod commands;
 mod path;
@@ -14,7 +14,10 @@ const ABOUT: &str = "A convenient file sorting utility";
 fn main() {
     let about_text = format!("{} {}\n{}", NAME, VERSION, ABOUT);
     let usage_text = format!("{} <command> [options] [<path>]", BIN_NAME);
-    let after_help_text = format!("See '{} help <command>' for more information on a command", BIN_NAME);
+    let after_help_text = format!(
+        "See '{} help <command>' for more information on a command",
+        BIN_NAME
+    );
 
     let cabinet = Command::new("cabinet")
         .name(NAME)
@@ -25,31 +28,21 @@ fn main() {
         .override_usage(usage_text)
         .after_help(after_help_text)
         .subcommands(commands::builtin())
-        .args([
-            Arg::new("output-name")
-                .short('o')
-                .long("output")
-                .help("Specify the name of the output folder") // TODO: What to do when sorting by file type?
-                .action(ArgAction::Set),
-        ]);
+        .args([Arg::new("output")
+            .long("output")
+            .short('o')
+            .help("Specify the name of the output folder")
+            .action(clap::ArgAction::Set)
+            .global(true)]);
 
     let matches = cabinet.get_matches();
 
     match matches.subcommand() {
-        Some(("date", cmd)) => {
-            commands::date::exec(cmd);
-        }
-        Some(("name", cmd)) => {
-            commands::name::exec(cmd);
-        }
-        Some(("size", cmd)) => {
-            commands::size::exec(cmd);
-        }
-        Some(("type", cmd)) => {
-            commands::file_type::exec(cmd);
-        }
-        _ => {
-            unreachable!();
-        }
+        Some(("date", cmd)) => commands::date::exec(cmd),
+        Some(("multisort", cmd)) => commands::multisort::exec(cmd),
+        Some(("name", cmd)) => commands::name::exec(cmd),
+        Some(("size", cmd)) => commands::size::exec(cmd),
+        Some(("type", cmd)) => commands::file_type::exec(cmd),
+        _ => unreachable!(),
     }
 }
