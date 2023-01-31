@@ -46,13 +46,13 @@ With templates, you can sort directories quickly. Invoke using the `-t` or `--te
 cab type -t downloads
 ```
 Currently, the following templates are available:
-* Documents
-* Downloads
-* Desktop
-* Home directory (e.g. `C:\Users\User\` or `/home/User/`)
-* Music (or Audio)
-* Pictures
-* Videos (or Movies)
+* `documents`
+* `downloads`
+* `desktop`
+* `home` (e.g. `C:\Users\User\` or `/home/User/`)
+* `music` (or `audio`)
+* `pictures`
+* `videos` (or `movies`)
 
 ## Testing
-For testing, such as generating test files to sort, Python is used. Python 3.7+ is recommended.
+For testing, such as generating test files to sort, Python is used. Python 3.9+ is recommended.
