@@ -1,8 +1,8 @@
 use clap::{Arg, Command};
 
 mod commands;
-mod path;
-mod utils;
+mod sort;
+mod util;
 
 const NAME: &str = "Cabinet";
 const BIN_NAME: &str = "cab";

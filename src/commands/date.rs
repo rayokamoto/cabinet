@@ -7,8 +7,8 @@ use clap;
 use clap::{Arg, ArgMatches, Command};
 use regex::Regex;
 
-use crate::path::get_path;
-use crate::utils;
+use crate::util::path::{get_path, get_current_path};
+use crate::util;
 
 pub fn cli() -> Command {
     Command::new("date")
@@ -132,11 +132,8 @@ pub fn exec(args: &ArgMatches) {
         after = naive_date_time.timestamp();
     }
 
-    //let paths_parent = path.as_ref().unwrap().display().to_string();
-    //let parent = path.unwrap();
-    //println!("CURRENT PATH: {}", &paths_parent);
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
-    let parent = utils::get_current_path(path);
+    let parent = get_current_path(path);
 
     let mut files: Vec<DirEntry> = vec![];
     for item in dir {
@@ -172,18 +169,18 @@ pub fn exec(args: &ArgMatches) {
     println!("Found {} files that are able to be sorted", &files.len());
 
     // Make folder if necessary
-    let mut folder = utils::set_folder_name("Sorted_by_Date".to_string());
+    let mut folder = util::set_folder_name("Sorted_by_Date".to_string());
 
     if let Some(out_name) = args.get_one::<String>("output") {
         if !&out_name.is_empty() {
-            folder = utils::set_folder_name(out_name.to_string());
+            folder = util::set_folder_name(out_name.to_string());
         }
     }
 
     let mut full_path = parent.clone();
     full_path.push(&folder);
 
-    utils::create_folder(&full_path, &folder);
+    util::create_folder(&full_path, &folder);
 
-    utils::sort_files(&full_path, &files);
+    util::sort_files(&full_path, &files);
 }

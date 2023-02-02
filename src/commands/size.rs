@@ -3,8 +3,8 @@ use std::path::PathBuf;
 
 use clap::{Arg, ArgMatches, Command};
 
-use crate::path::get_path;
-use crate::utils;
+use crate::util::path::get_path;
+use crate::util;
 
 pub fn cli() -> Command {
     Command::new("size")
@@ -120,18 +120,18 @@ pub fn exec(args: &ArgMatches) {
     println!("Found {} files that are able to be sorted", &files.len());
 
     // Make folder if necessary
-    let mut folder = utils::set_folder_name("Sorted_by_Size".to_string());
+    let mut folder = util::set_folder_name("Sorted_by_Size".to_string());
 
     if let Some(out_name) = args.get_one::<String>("output") {
         if !&out_name.is_empty() {
-            folder = utils::set_folder_name(out_name.to_string());
+            folder = util::set_folder_name(out_name.to_string());
         }
     }
 
     let mut full_path = parent.clone();
     full_path.push(&folder);
 
-    utils::create_folder(&full_path, &folder);
+    util::create_folder(&full_path, &folder);
 
-    utils::sort_files(&full_path, &files);
+    util::sort_files(&full_path, &files);
 }

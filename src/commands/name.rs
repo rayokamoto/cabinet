@@ -4,8 +4,8 @@ use std::path::PathBuf;
 
 use clap::{Arg, ArgMatches, Command};
 
-use crate::path::get_path;
-use crate::utils;
+use crate::util;
+use crate::util::path::get_path;
 
 pub fn cli() -> Command {
     Command::new("name")
@@ -49,16 +49,16 @@ pub fn exec(args: &ArgMatches) {
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
+    if path == None {
+        println!("ERROR: The path is invalid");
+        return;
+    }
+
     if let Some(incl) = args.get_one::<String>("includes") {
         include_pattern = Some(incl.to_string());
     }
     if let Some(excl) = args.get_one::<String>("excludes") {
         exclude_pattern = Some(excl.to_string());
-    }
-
-    if path == None {
-        println!("ERROR: The path is invalid");
-        return;
     }
 
     // Neither was provided
@@ -115,18 +115,18 @@ pub fn exec(args: &ArgMatches) {
     println!("Found {} files that are able to be sorted", &files.len());
 
     // Make folder if necessary
-    let mut folder = utils::set_folder_name("Sorted_by_Name".to_string());
+    let mut folder = util::set_folder_name("Sorted_by_Name".to_string());
 
     if let Some(out_name) = args.get_one::<String>("output") {
         if !&out_name.is_empty() {
-            folder = utils::set_folder_name(out_name.to_string());
+            folder = util::set_folder_name(out_name.to_string());
         }
     }
 
     let mut full_path = parent.clone();
     full_path.push(&folder);
 
-    utils::create_folder(&full_path, &folder);
+    util::create_folder(&full_path, &folder);
 
-    utils::sort_files(&full_path, &files);
+    util::sort_files(&full_path, &files);
 }

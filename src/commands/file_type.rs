@@ -7,8 +7,8 @@ use std::time::Instant;
 
 use clap::{Arg, ArgMatches, Command};
 
-use crate::path::get_path;
-use crate::utils;
+use crate::util::path::get_path;
+use crate::util;
 
 pub fn cli() -> Command {
     Command::new("type")
@@ -67,9 +67,9 @@ pub fn exec(args: &ArgMatches) {
         //let folder = "Sorted_By_Size".to_string();
         full_path.push(&folder);
 
-        utils::create_folder(&full_path, &folder);
+        util::create_folder(&full_path, &folder);
 
-        utils::sort_files(&full_path, &files);
+        util::sort_files(&full_path, &files);
 
         return;
     }
@@ -139,7 +139,7 @@ pub fn exec(args: &ArgMatches) {
         let mut full_path = parent.clone();
         // cannot reference (&) since we would be pushing to that reference below:
         full_path.push(&file_type);
-        utils::create_folder(&full_path, &file_type)
+        util::create_folder(&full_path, &file_type)
     }
 
     // TODO: Check if output is specified and warn user that it will not be used for

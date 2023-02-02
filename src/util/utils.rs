@@ -5,12 +5,6 @@ use std::time::Instant;
 
 use chrono::{NaiveDateTime, Utc};
 
-pub fn get_current_path(path: Option<PathBuf>) -> PathBuf {
-    let paths_parent = path.as_ref().unwrap().display().to_string();
-    println!("CURRENT PATH: {}", &paths_parent);
-    path.unwrap()
-}
-
 pub fn set_folder_name(suffix: String) -> String {
     let timestamp = Utc::now().timestamp();
     let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
