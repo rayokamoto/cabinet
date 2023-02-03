@@ -133,6 +133,7 @@ pub fn exec(args: &ArgMatches) {
     println!("CURRENT PATH: {}", &paths_parent);
 
     let mut files: Vec<Rc<DirEntry>> = vec![];
+    let mut sort_files = false;
 
     for item in dir {
         let item = item.unwrap();
@@ -179,6 +180,7 @@ pub fn exec(args: &ArgMatches) {
 
     if !&new_files.is_empty() {
         files = new_files;
+        sort_files = true;
     }
 
     // Sort by date
@@ -259,6 +261,7 @@ pub fn exec(args: &ArgMatches) {
 
     if !&new_files.is_empty() {
         files = new_files;
+        sort_files = true;
     }
 
     // Sort by size
@@ -305,9 +308,12 @@ pub fn exec(args: &ArgMatches) {
 
     if !&new_files.is_empty() {
         files = new_files;
+        sort_files = true;
     }
 
-    //println!("{:?}", &files);
+    if !sort_files {
+        files = vec![];
+    }
 
     if *&files.len() == 0 {
         println!("There are no files to sort that match the given parameters");
@@ -315,12 +321,11 @@ pub fn exec(args: &ArgMatches) {
     }
     println!("Found {} files that are able to be sorted", &files.len());
 
-    // Make folder if necessary
     let mut folder = util::set_folder_name("Multisort".to_string());
 
     if let Some(out_name) = args.get_one::<String>("output") {
         if !&out_name.is_empty() {
-            folder = util::set_folder_name(out_name.to_string());
+            folder = out_name.to_string();
         }
     }
 

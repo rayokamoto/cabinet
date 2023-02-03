@@ -7,6 +7,7 @@ use std::time::Instant;
 
 use chrono::{NaiveDateTime, Utc};
 
+/// Set folder name according to the following format of `Cabinet-YYYYmmddTHHMMSS-<suffix>`
 pub fn set_folder_name(suffix: String) -> String {
     let timestamp = Utc::now().timestamp();
     let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
@@ -21,11 +22,20 @@ pub fn create_folder(path: PathBuf, folder: String) -> Result<PathBuf, io::Error
     path.push(&folder);
 
     if Path::new(&path).exists() {
-        let mut ans = String::new();
         print!("The folder with the name '{folder}' already exists. Sorted files will be placed in this folder anyway. Proceed? [y/N] ");
+        let _ = stdout().flush();
+        let mut ans = String::new();
         stdin().read_line(&mut ans).expect("Malformed input");
+        if let Some('\n') = ans.chars().next_back() {
+            ans.pop();
+        }
+        if let Some('\r') = ans.chars().next_back() {
+            ans.pop();
+        }
+
         if ans == "y" {
             println!("\nContinuing anyway...");
+            return Ok(path);
         } else {
             println!("\nAborted.");
             exit(0);

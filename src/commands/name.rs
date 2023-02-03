@@ -114,12 +114,11 @@ pub fn exec(args: &ArgMatches) {
     }
     println!("Found {} files that are able to be sorted", &files.len());
 
-    // Make folder if necessary
     let mut folder = util::set_folder_name("Sorted_by_Name".to_string());
 
     if let Some(out_name) = args.get_one::<String>("output") {
         if !&out_name.is_empty() {
-            folder = util::set_folder_name(out_name.to_string());
+            folder = out_name.to_string();
         }
     }
 
