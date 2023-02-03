@@ -55,4 +55,4 @@ Currently, the following templates are available:
 * `videos` (or `movies`)
 
 ## Testing
-For testing, such as generating test files to sort, Python is used. Python 3.9+ is recommended.
+For testing, such as generating test files to sort, Python is used. Python 3.9 or higher is required.
