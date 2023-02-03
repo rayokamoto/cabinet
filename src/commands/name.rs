@@ -41,9 +41,6 @@ pub fn cli() -> Command {
 
 pub fn exec(args: &ArgMatches) {
     let mut path: Option<PathBuf> = None;
-    let mut include_pattern: Option<String> = None;
-    let mut exclude_pattern: Option<String> = None;
-
     let use_template = args.get_flag("template");
 
     if let Some(p) = args.get_one::<String>("path") {
@@ -53,6 +50,9 @@ pub fn exec(args: &ArgMatches) {
         println!("ERROR: The path is invalid");
         return;
     }
+
+    let mut include_pattern: Option<String> = None;
+    let mut exclude_pattern: Option<String> = None;
 
     if let Some(incl) = args.get_one::<String>("includes") {
         include_pattern = Some(incl.to_string());
@@ -123,10 +123,11 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    let mut full_path = parent.clone();
-    full_path.push(&folder);
-
-    util::create_folder(&full_path, &folder);
+    let full_path = parent.clone();
+    let full_path = match util::create_folder(full_path, folder) {
+        Ok(f) => f,
+        Err(_) => return,
+    };
 
     util::sort_files(&full_path, &files);
 }

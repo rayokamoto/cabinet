@@ -1,14 +1,15 @@
 use std::ffi::OsStr;
 use std::fs::{self, DirEntry};
 use std::path::PathBuf;
+use std::rc::Rc;
 use std::time::UNIX_EPOCH;
 
 use chrono::NaiveDateTime;
 use clap::{Arg, ArgMatches, Command};
 use regex::Regex;
 
-use crate::util::path::get_path;
 use crate::util;
+use crate::util::path::get_path;
 
 pub fn cli() -> Command {
     Command::new("multisort")
@@ -131,7 +132,13 @@ pub fn exec(args: &ArgMatches) {
     let parent = path.unwrap();
     println!("CURRENT PATH: {}", &paths_parent);
 
-    let mut files: Vec<DirEntry> = vec![];
+    let mut files: Vec<Rc<DirEntry>> = vec![];
+
+    for item in dir {
+        let item = item.unwrap();
+        //files.push(item.into());
+        files.push(Rc::new(item));
+    }
 
     // Sort by name
 
@@ -149,8 +156,9 @@ pub fn exec(args: &ArgMatches) {
         exclude = exclude_pattern.unwrap();
     }
 
-    for item in dir {
-        let item = item.unwrap();
+    let mut new_files: Vec<Rc<DirEntry>> = vec![];
+
+    for item in &files {
         let md = item.metadata().unwrap();
 
         let filename = &item.file_name(); // gets the name (no file extension)
@@ -158,15 +166,19 @@ pub fn exec(args: &ArgMatches) {
 
         if md.is_file() {
             if (has_include && has_exclude) && (f.contains(&include) && !f.contains(&exclude)) {
-                files.push(item);
+                new_files.push(Rc::clone(&item));
             } else if (has_include && !has_exclude) && f.contains(&include) {
-                files.push(item);
+                new_files.push(Rc::clone(&item));
             }
             // Only add file if it DOESN'T include the pattern (since it is exclude pattern)
             else if (has_exclude && !has_include) && !f.contains(&exclude) {
-                files.push(item);
+                new_files.push(Rc::clone(&item));
             }
         }
+    }
+
+    if !&new_files.is_empty() {
+        files = new_files;
     }
 
     // Sort by date
@@ -182,10 +194,6 @@ pub fn exec(args: &ArgMatches) {
         has_before = true;
         let d = &date_before.as_ref().unwrap()[..];
         let cap = re.captures(d).unwrap();
-        //let text = "2012-03-14, 2013-01-01 and 2014-07-05";
-        //for cap in re.captures_iter(text) {
-        //    println!("Day: {} Month: {} Year: {}", &cap[3], &cap[2], &cap[1]);
-        //}
 
         let date_time = chrono::NaiveDate::from_ymd_opt(
             cap[1].parse::<i32>().unwrap(),
@@ -223,9 +231,8 @@ pub fn exec(args: &ArgMatches) {
         after = naive_date_time.timestamp();
     }
 
-    let mut new_files: Vec<DirEntry> = vec![];
-    for (idx, item) in files.iter().enumerate() {
-        //let item = item;
+    let mut new_files: Vec<Rc<DirEntry>> = vec![];
+    for item in &files {
         let md = item.metadata().unwrap();
         //let md = fs::metadata(item)?; // Alternative method
 
@@ -241,18 +248,18 @@ pub fn exec(args: &ArgMatches) {
             let file_date = dur.num_seconds();
 
             if (has_before && has_after) && (file_date >= after && file_date <= before) {
-                //files.push(item);
+                new_files.push(Rc::clone(&item));
             } else if (has_before && !has_after) && file_date <= before {
-                //files.push(item);
+                new_files.push(Rc::clone(&item));
             } else if (has_after && !has_before) && file_date >= after {
-                //files.push(item);
-            } else {
-                new_files.remove(idx);
+                new_files.push(Rc::clone(&item));
             }
         }
     }
 
-    files = new_files;
+    if !&new_files.is_empty() {
+        files = new_files;
+    }
 
     // Sort by size
 
@@ -278,8 +285,8 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    let mut new_files: Vec<DirEntry> = vec![];
-    for (idx, item) in files.iter().enumerate() {
+    let mut new_files: Vec<Rc<DirEntry>> = vec![];
+    for item in &files {
         let md = item.metadata().unwrap();
 
         if md.is_file() {
@@ -287,21 +294,20 @@ pub fn exec(args: &ArgMatches) {
 
             //println!("filesize:{} - min-check:{:?}, max-check:{:?}", &file_size, file_size >= min, file_size <= max);
             if (has_min && has_max) && (file_size >= min && file_size <= max) {
-                //files.push(item);
-                continue;
+                new_files.push(Rc::clone(&item));
             } else if (has_min && !has_max) && file_size >= min {
-                //files.push(item);
-                continue;
+                new_files.push(Rc::clone(&item));
             } else if (has_max && !has_min) && file_size <= max {
-                //files.push(item);
-                continue;
-            } else {
-                new_files.remove(idx);
+                new_files.push(Rc::clone(&item));
             }
         }
     }
 
-    files = new_files;
+    if !&new_files.is_empty() {
+        files = new_files;
+    }
+
+    //println!("{:?}", &files);
 
     if *&files.len() == 0 {
         println!("There are no files to sort that match the given parameters");
@@ -318,10 +324,11 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    let mut full_path = parent.clone();
-    full_path.push(&folder);
+    let full_path = parent.clone();
+    let full_path = match util::create_folder(full_path, folder) {
+        Ok(f) => f,
+        Err(_) => return,
+    };
 
-    util::create_folder(&full_path, &folder);
-
-    util::sort_files(&full_path, &files);
+    util::sort_files_rc(&full_path, &files);
 }

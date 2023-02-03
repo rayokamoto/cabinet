@@ -38,19 +38,16 @@ pub fn cli() -> Command {
 
 pub fn exec(args: &ArgMatches) {
     let mut path: Option<PathBuf> = None;
-
     let use_template = args.get_flag("template");
 
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
-
     if path == None {
         println!("ERROR: The path is invalid");
         return;
     }
 
-    // TODO: Deal with symlinks
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
@@ -63,11 +60,11 @@ pub fn exec(args: &ArgMatches) {
     if let Some(ftype) = args.get_one::<String>("type") {
         let folder = ftype.to_string();
 
-        let mut full_path = parent.clone();
-        //let folder = "Sorted_By_Size".to_string();
-        full_path.push(&folder);
-
-        util::create_folder(&full_path, &folder);
+        let full_path = parent.clone();
+        let full_path = match util::create_folder(full_path, folder) {
+            Ok(f) => f,
+            Err(_) => return,
+        };
 
         util::sort_files(&full_path, &files);
 
@@ -136,10 +133,8 @@ pub fn exec(args: &ArgMatches) {
 
     // Create file type paths
     for file_type in &file_types {
-        let mut full_path = parent.clone();
-        // cannot reference (&) since we would be pushing to that reference below:
-        full_path.push(&file_type);
-        util::create_folder(&full_path, &file_type)
+        let full_path = parent.clone();
+        _ = util::create_folder(full_path, file_type.to_string());
     }
 
     // TODO: Check if output is specified and warn user that it will not be used for

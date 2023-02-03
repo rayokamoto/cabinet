@@ -40,24 +40,24 @@ pub fn cli() -> Command {
 
 pub fn exec(args: &ArgMatches) {
     let mut path: Option<PathBuf> = None;
-    let mut size_min: Option<String> = None;
-    let mut size_max: Option<String> = None;
-
     let use_template = args.get_flag("template");
 
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
+    if path == None {
+        println!("ERROR: The path is invalid");
+        return;
+    }
+
+    let mut size_min: Option<String> = None;
+    let mut size_max: Option<String> = None;
+
     if let Some(min) = args.get_one::<String>("min") {
         size_min = Some(min.to_string());
     }
     if let Some(max) = args.get_one::<String>("max") {
         size_max = Some(max.to_string());
-    }
-
-    if path == None {
-        println!("ERROR: The path is invalid");
-        return;
     }
 
     // Neither was provided
@@ -128,10 +128,11 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    let mut full_path = parent.clone();
-    full_path.push(&folder);
-
-    util::create_folder(&full_path, &folder);
+    let full_path = parent.clone();
+    let full_path = match util::create_folder(full_path, folder) {
+        Ok(f) => f,
+        Err(_) => return,
+    };
 
     util::sort_files(&full_path, &files);
 }

@@ -7,8 +7,8 @@ use clap;
 use clap::{Arg, ArgMatches, Command};
 use regex::Regex;
 
-use crate::util::path::{get_path, get_current_path};
 use crate::util;
+use crate::util::path::{get_current_path, get_path};
 
 pub fn cli() -> Command {
     Command::new("date")
@@ -44,17 +44,22 @@ pub fn cli() -> Command {
 
 pub fn exec(args: &ArgMatches) {
     let mut path: Option<PathBuf> = None;
+    let use_template = args.get_flag("template");
+
+    if let Some(p) = args.get_one::<String>("path") {
+        path = get_path(p, use_template);
+    }
+    if path == None {
+        println!("ERROR: The path is invalid");
+        return;
+    }
+
     let mut date_after: Option<String> = None;
     let mut date_before: Option<String> = None;
 
     // Date pattern for YYYY-MM-DD
     let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
 
-    let use_template = args.get_flag("template");
-
-    if let Some(p) = args.get_one::<String>("path") {
-        path = get_path(p, use_template);
-    }
     if let Some(after) = args.get_one::<String>("after") {
         if re.is_match(after) {
             date_after = Some(after.to_string());
@@ -66,19 +71,10 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    if path == None {
-        println!("ERROR: The path is invalid");
-        return;
-    }
-
-    // Neither was provided
     if date_before == None && date_after == None {
         println!("ERROR: A before or after date must be provided");
         return;
     }
-
-    // TODO: Implement this feature for directories/folders
-    // TODO: Deal with symlinks
 
     let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
 
@@ -177,10 +173,11 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    let mut full_path = parent.clone();
-    full_path.push(&folder);
-
-    util::create_folder(&full_path, &folder);
+    let full_path = parent.clone();
+    let full_path = match util::create_folder(full_path, folder) {
+        Ok(f) => f,
+        Err(_) => return,
+    };
 
     util::sort_files(&full_path, &files);
 }

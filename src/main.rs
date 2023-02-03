@@ -9,8 +9,9 @@ const BIN_NAME: &str = "cab";
 const VERSION: &str = "0.4.0";
 const ABOUT: &str = "A convenient file sorting utility";
 
-// TODO: Add option for config file to automate things more
+// TODO: Add option for config file (e.g. add your own template paths)
 // TODO: Add option to sort folders as well as files
+// TODO: Better handling of symlinks
 fn main() {
     let about_text = format!("{} {}\n{}", NAME, VERSION, ABOUT);
     let usage_text = format!("{} <command> [options] [<path>]", BIN_NAME);
