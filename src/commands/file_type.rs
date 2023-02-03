@@ -48,6 +48,10 @@ pub fn exec(args: &ArgMatches) {
         return;
     }
 
+    if let Some(_) = args.get_one::<String>("output") {
+        println!("NOTE: Setting a custom output folder is currently not possible when sorting by file type");
+    }
+
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
     let parent = path.unwrap(); // PathBuf
@@ -139,13 +143,8 @@ pub fn exec(args: &ArgMatches) {
     let mut stdout = stdout();
     for (idx, file) in files.iter().enumerate() {
         let done = idx as f64 / *&files.len() as f64;
-        // Get file extension to sort into folder for that file extension
 
-        //let ext = Path::new(&file.file_name()).extension().and_then(OsStr::to_str).unwrap().to_string();
         let fname = &file.file_name();
-        // If Path::new(&file.file_name()) is used, rustc(E0716) is raised.
-        // It talks about how value is dropped when ext is matched, perhaps &file dropped?
-        // Bug?
         let ext = Path::new(fname).extension().and_then(OsStr::to_str);
         let ff: String;
         match ext {

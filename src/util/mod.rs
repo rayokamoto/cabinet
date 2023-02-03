@@ -1,4 +1,4 @@
 pub use self::utils::*;
 
-pub mod utils;
 pub mod path;
+pub mod utils;

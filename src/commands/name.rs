@@ -82,8 +82,8 @@ pub fn exec(args: &ArgMatches) {
     }
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
-    let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
-    let parent = path.unwrap(); // PathBuf
+    let paths_parent = path.as_ref().unwrap().display().to_string();
+    let parent = path.unwrap();
     println!("CURRENT PATH: {}", &paths_parent);
 
     let mut files: Vec<DirEntry> = vec![];
