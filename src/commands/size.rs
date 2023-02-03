@@ -1,32 +1,32 @@
 use std::fs::{self, DirEntry};
-use std::io::{stdout, Write};
-use std::path::{PathBuf, Path};
-use std::time::Instant;
+use std::path::PathBuf;
 
 use clap::{Arg, ArgMatches, Command};
 
-use crate::path::get_path;
+use crate::util::path::get_path;
+use crate::util;
 
 pub fn cli() -> Command {
     Command::new("size")
         .about("Sort files by their size in KB (do not include 'KB' in the actual command)")
-        .alias("S")
         .args([
-            Arg::new("template")
-                .short('t')
-                .long("template")
-                .help("The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)")
-                .action(clap::ArgAction::SetTrue),
             Arg::new("min")
+                .short('m')
                 .long("min")
                 .value_name("size")
                 .help("Get files that are GREATER THAN the specified size (in KB)")
                 .action(clap::ArgAction::Set),
             Arg::new("max")
+                .short('M')
                 .long("max")
                 .value_name("size")
                 .help("Get files that are LESS THAN the specified size (in KB)")
                 .action(clap::ArgAction::Set),
+            Arg::new("template")
+                .short('t')
+                .long("template")
+                .help("The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)")
+                .action(clap::ArgAction::SetTrue),
         ])
         .arg_required_else_help(true)
         .arg(
@@ -40,25 +40,24 @@ pub fn cli() -> Command {
 
 pub fn exec(args: &ArgMatches) {
     let mut path: Option<PathBuf> = None;
-    let mut size_min: Option<String> = None;
-    let mut size_max: Option<String> = None;
-
     let use_template = args.get_flag("template");
 
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
+    if path == None {
+        println!("ERROR: The path is invalid");
+        return;
+    }
+
+    let mut size_min: Option<String> = None;
+    let mut size_max: Option<String> = None;
+
     if let Some(min) = args.get_one::<String>("min") {
         size_min = Some(min.to_string());
     }
     if let Some(max) = args.get_one::<String>("max") {
         size_max = Some(max.to_string());
-    }
-
-
-    if path == None {
-        println!("ERROR: The path is invalid");
-        return;
     }
 
     // Neither was provided
@@ -77,7 +76,7 @@ pub fn exec(args: &ArgMatches) {
         min = size_min.clone().unwrap().parse::<u64>().unwrap();
         if &min < &0 {
             println!("ERROR: Negative values cannot be used as file sizes");
-        return;
+            return;
         }
     }
     if size_max != None {
@@ -85,13 +84,13 @@ pub fn exec(args: &ArgMatches) {
         max = size_max.clone().unwrap().parse::<u64>().unwrap();
         if &max < &0 {
             println!("ERROR: Negative values cannot be used as file sizes");
-        return;
+            return;
         }
     }
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
-    let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
-    let parent = path.unwrap(); // PathBuf
+    let paths_parent = path.as_ref().unwrap().display().to_string();
+    let parent = path.unwrap();
     println!("CURRENT PATH: {}", &paths_parent);
 
     let mut files: Vec<DirEntry> = vec![];
@@ -106,11 +105,9 @@ pub fn exec(args: &ArgMatches) {
             //println!("filesize:{} - min-check:{:?}, max-check:{:?}", &file_size, file_size >= min, file_size <= max);
             if (has_min && has_max) && (file_size >= min && file_size <= max) {
                 files.push(item);
-            }
-            else if (has_min && !has_max) && file_size >= min {
+            } else if (has_min && !has_max) && file_size >= min {
                 files.push(item);
-            }
-            else if (has_max && !has_min) && file_size <= max {
+            } else if (has_max && !has_min) && file_size <= max {
                 files.push(item);
             }
         }
@@ -122,42 +119,19 @@ pub fn exec(args: &ArgMatches) {
     }
     println!("Found {} files that are able to be sorted", &files.len());
 
-    // Make folder if necessary
-    // TODO: Sort out the naming of the newly created folder
-    let mut full_path = parent.clone();
-    let size = "Sorted_By_Size".to_string();
-    full_path.push(&size);
-    if !Path::new(&full_path).exists() {
-        let f = fs::create_dir(&full_path);
-        match f {
-            Ok(_) => {
-                println!("New folder '{}' has been created\n-->  Full path: \"{}\"", 
-                    &size, &full_path.display());
-            }
-            Err(error) => {
-                println!("There was a problem creating the folder for \"{}\":\n{:?}", &size, error)
-            }
+    let mut folder = util::set_folder_name("Sorted_by_Size".to_string());
+
+    if let Some(out_name) = args.get_one::<String>("output") {
+        if !&out_name.is_empty() {
+            folder = out_name.to_string();
         }
     }
 
-    let mut files_sorted: f64 = 0.0;
-    let start = Instant::now();
-    let mut stdout = stdout();
-    for (idx, file) in files.iter().enumerate() {
-        let done = idx as f64 / *&files.len() as f64;
-        //let full_path = parent.clone().join(&date);
-        let f = fs::rename(file.path(), full_path.join(file.file_name()));
-        match f {
-            Ok(_) => files_sorted += 1.0,
-            Err(error) => println!("There was a problem opening the file:\n{:?}", error)
-        }
+    let full_path = parent.clone();
+    let full_path = match util::create_folder(full_path, folder) {
+        Ok(f) => f,
+        Err(_) => return,
+    };
 
-        print!("\rProcessing {:.1}%", done * 100.0);
-        stdout.flush().unwrap();
-    }
-    let duration = start.elapsed();
-    stdout.flush().unwrap();
-    print!("\rProcessed 100%   \n"); 
-    println!("Time taken: {:?}", duration);
-    println!("Sorted {}/{} files into folders", &files_sorted, &files.len());
+    util::sort_files(&full_path, &files);
 }

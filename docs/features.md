@@ -1,8 +1,7 @@
 # Features
-This is an overview of the features that are currently available. 
-#### *Disclaimer: Note that features may be added, revised, or removed at any time as this is in active development*
+This is an overview of the features that are currently available.
 
-<br>
+***Disclaimer: Note that features may be added, revised, or removed at any time as this is in active development***
 
 ---
 
@@ -10,7 +9,7 @@ This is an overview of the features that are currently available.
 
 In general, the way commands work is as follows:
 - Type the command (method you want to sort by)
-- Provide a path to sort (use absolute or template)
+- Provide a path to sort (using normal or template)
 - Add any other required/optional arguments
 
 ### Usage
@@ -20,16 +19,16 @@ cab <command> [options] [<path>]
 
 ### List of Commands
 Currently implemented commands:
-- `type`
 - `date`
+- `multisort`
 - `name`
 - `size`
+- `type`
 
 Other commands:
 - `help`
 
 Future commands:
-- `sort`/`multisort` - Sort files with multiple options (combination of all the sorting commands)
 
 ### Path
 You have two options when providing a path:
@@ -53,13 +52,13 @@ cab type "/home/User/Documents/Important Stuff"
 You can also use predefined templates to save you time from typing out the whole directory. Invoke using the `-t` or `--template` option.
 
 Currently, the following templates are available:
-* Documents
-* Downloads
-* Desktop
-* Home directory (e.g. `C:\Users\User\` or `/home/User/`)
-* Music (or Audio)
-* Pictures
-* Videos (or Movies)
+* `documents`
+* `downloads`
+* `desktop`
+* `home` (e.g. `C:\Users\User\` or `/home/User/`)
+* `music` (or `audio`)
+* `pictures`
+* `videos` (or `movies`)
 
 Example
 ```
@@ -69,9 +68,6 @@ This will sort the user's downloads folder
 
 ### Other arguments
 These are command-specific and are documented under the [commands](#commands) section.
-
-
-<br>
 
 ---
 
@@ -90,21 +86,49 @@ Arguments:
   <PATH>
 
 Options:
-  -t, --template       The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
-      --before <date>  Get files from before the specified date. Date format is YYYY-MM-DD
-      --after <date>   Get files from after the specified date. Date format is YYYY-MM-DD
-  -h, --help           Print help information
+  -B, --before <date>    Get files from before the specified date. Date format is YYYY-MM-DD
+  -A, --after <date>     Get files from after the specified date. Date format is YYYY-MM-DD
+  -t, --template         The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
+  -o, --output <output>  Specify the name of the output folder
+  -h, --help             Print help
 ```
 When sorting by date modified, you must provide either a before or after date, or both, using the `--before` and `--after` options respectively.
-
-#### Remarks
-None
 
 #### Examples
 ```
 cab date /path/to/folder --after 2022-02-01
 cab date /path/to/folder --before 2021-12-25
 cab date -t downloads --after 2021-04-01 --before 2022-02-01
+```
+
+<br>
+
+### multisort
+```
+Sort files using multiple file attributes
+
+Usage: cab multisort [OPTIONS] <PATH>
+
+Arguments:
+  <PATH>
+
+Options:
+  -B, --before <date>     Get files from before the specified date. Date format is YYYY-MM-DD
+  -A, --after <date>      Get files from after the specified date. Date format is YYYY-MM-DD
+  -I, --includes <match>  File name includes...
+  -E, --excludes <match>  File name excludes...
+  -m, --min <size>        Get files that are GREATER THAN the specified size (in KB)
+  -M, --max <size>        Get files that are LESS THAN the specified size (in KB)
+  -o, --output <output>   Specify the name of the output folder
+  -T, --type <file-type>  Sort files according to the specific file type
+  -t, --template          The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
+  -h, --help              Print help
+```
+
+#### Examples
+```
+cab multisort --before 2023-01-01 --type "txt" --template documents
+cab multisort -m 10 -M 1000 -E "Copy of" /path/to/folder
 ```
 
 <br>
@@ -119,15 +143,13 @@ Arguments:
   <PATH>
 
 Options:
+  -I, --includes <match>  File name includes...
+  -E, --excludes <match>  File name excludes...
   -t, --template          The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
-      --includes <match>  File name includes...
-      --excludes <match>  File name excludes...
-  -h, --help              Print help information
+  -o, --output <output>   Specify the name of the output folder
+  -h, --help              Print help
 ```
 Sort files that includes the given string OR sort files that DO NOT contain the given string. Both options can be provided at once, although at least one must be provided. The matches are case-sensitive and quotation marks should be used if there are spaces in the string.
-
-#### Remarks
-None
 
 #### Examples
 ```
@@ -148,10 +170,11 @@ Arguments:
   <PATH>
 
 Options:
-  -t, --template    The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
-      --min <size>  Get files that are GREATER THAN the specified size (in KB)
-      --max <size>  Get files that are LESS THAN the specified size (in KB)
-  -h, --help        Print help information
+  -m, --min <size>       Get files that are GREATER THAN the specified size (in KB)
+  -M, --max <size>       Get files that are LESS THAN the specified size (in KB)
+  -t, --template         The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
+  -o, --output <output>  Specify the name of the output folder
+  -h, --help             Print help
 ```
 Specify whether you want to sort files that are less than or greater than the file size you specified. Use `--max` to sort by files less than the specified size and `--min` for files greater than the specified size. Currently, only sizes in KB is supported. NOTE: do not include "KB" in the actual command!
 
@@ -169,7 +192,7 @@ cab size -t downloads --min 10 --max 10000
 
 ### type
 ```
-Sort files by file type
+Sort all or select files by file type
 
 Usage: cab type [OPTIONS] <PATH>
 
@@ -177,8 +200,10 @@ Arguments:
   <PATH>
 
 Options:
-  -t, --template  The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
-  -h, --help      Print help information
+  -T, --type <file-type>  Sort files according to the specific file type
+  -t, --template          The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
+  -o, --output <output>   Specify the name of the output folder
+  -h, --help              Print help
 ```
 #### Remarks
 - The option to specify only one file type will be added in the future.
