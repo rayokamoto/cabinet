@@ -1,6 +1,6 @@
 use std::ffi::OsStr;
 use std::fs::{self, DirEntry};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::time::UNIX_EPOCH;
 
@@ -51,6 +51,12 @@ pub fn cli() -> Command {
                 .long("max")
                 .value_name("size")
                 .help("Get files that are LESS THAN the specified size (in KB)")
+                .action(clap::ArgAction::Set),
+            Arg::new("type")
+                .short('T')
+                .long("type")
+                .value_name("file-type")
+                .help("Sort files according to the specific file type")
                 .action(clap::ArgAction::Set),
             Arg::new("template")
                 .short('t')
@@ -113,6 +119,11 @@ pub fn exec(args: &ArgMatches) {
         size_max = Some(max.to_string());
     }
 
+    let mut file_type: Option<String> = None;
+    if let Some(ftype) = args.get_one::<String>("type") {
+        file_type = Some(ftype.to_string());
+    }
+
     // No options were provided
     if size_min == None
         && size_max == None
@@ -120,12 +131,11 @@ pub fn exec(args: &ArgMatches) {
         && exclude_pattern == None
         && date_before == None
         && date_after == None
+        && file_type == None
     {
         println!("ERROR: At least one option must be provided");
         return;
     }
-
-    // handle the options
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string();
@@ -181,6 +191,8 @@ pub fn exec(args: &ArgMatches) {
     if !&new_files.is_empty() {
         files = new_files;
         sort_files = true;
+    } else if new_files.is_empty() && (has_include || has_exclude) {
+        files = vec![];
     }
 
     // Sort by date
@@ -262,6 +274,8 @@ pub fn exec(args: &ArgMatches) {
     if !&new_files.is_empty() {
         files = new_files;
         sort_files = true;
+    } else if new_files.is_empty() && (has_before || has_after) {
+        files = vec![];
     }
 
     // Sort by size
@@ -309,6 +323,35 @@ pub fn exec(args: &ArgMatches) {
     if !&new_files.is_empty() {
         files = new_files;
         sort_files = true;
+    } else if new_files.is_empty() && (has_min || has_max) {
+        files = vec![];
+    }
+
+    if file_type != None {
+        let mut new_files: Vec<Rc<DirEntry>> = vec![];
+        for item in &files {
+            let md = item.metadata().unwrap();
+
+            if md.is_file() {
+                let filename = &item.file_name();
+                let extension = Path::new(filename).extension().and_then(OsStr::to_str);
+                let ext: String;
+                match extension {
+                    Some(f) => ext = f.to_string(),
+                    None => continue,
+                };
+                if ext == file_type.clone().unwrap() {
+                    new_files.push(Rc::clone(&item));
+                }
+            }
+        }
+
+        if !&new_files.is_empty() {
+            files = new_files;
+            sort_files = true;
+        } else if new_files.is_empty() && file_type != None {
+            files = vec![];
+        }
     }
 
     if !sort_files {

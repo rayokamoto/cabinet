@@ -7,8 +7,8 @@ use std::time::Instant;
 
 use clap::{Arg, ArgMatches, Command};
 
-use crate::util::path::get_path;
 use crate::util;
+use crate::util::path::get_path;
 
 pub fn cli() -> Command {
     Command::new("type")
@@ -48,7 +48,6 @@ pub fn exec(args: &ArgMatches) {
         return;
     }
 
-
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
     let paths_parent = path.as_ref().unwrap().display().to_string(); // As a String
     let parent = path.unwrap(); // PathBuf
@@ -66,41 +65,37 @@ pub fn exec(args: &ArgMatches) {
             Err(_) => return,
         };
 
+        for item in dir {
+            let item = item.unwrap();
+            let md = item.metadata().unwrap();
+
+            if md.is_file() {
+                let filename = &item.file_name();
+                let extension = Path::new(filename).extension().and_then(OsStr::to_str);
+                let ext: String;
+                match extension {
+                    Some(f) => ext = f.to_string(),
+                    None => continue,
+                };
+                if ext == ftype.to_string() {
+                    files.push(item);
+                }
+            } else {
+                continue;
+            }
+        }
+
         util::sort_files(&full_path, &files);
 
         return;
     }
 
     for item in dir {
-        // unwrap item to get Ok(item) i.e. DirEntry
         let item = item.unwrap();
-        //println!("FILE: {:?}", &item.path());
-        // get metadata for item then unwrap to get Ok() value instead of Err()
         let md = item.metadata().unwrap();
         if md.is_file() {
             let filename = &item.file_name();
             files.push(item);
-
-            // Will panic when it encounters file with no extension.
-            //let f_type = Path::new(filename).extension().and_then(OsStr::to_str).unwrap().to_string();
-
-            // One method
-            //let f_type = Path::new(filename).extension().and_then(OsStr::to_str);
-            //let ff: String;
-            //if let Some(f) = f_type {
-            //    ff = f.to_string();
-            //    if !file_types.contains(&ff) {
-            //        file_types.push(ff);
-            //    }
-            //}
-            //else {
-            //    println!("PANICKED!!!");
-            //    return;
-            //}
-
-            //if !file_types.contains(&ff) {
-            //    file_types.push(ff);
-            //}
 
             let f_type = Path::new(filename).extension().and_then(OsStr::to_str);
             let ff: String;
@@ -119,9 +114,7 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    // Not that this will not run if there are files with no file extensions
     if *&files.len() == 0 {
-        // dereference, otherwise &usize will be compared to int
         println!("There are no files to sort");
         return;
     }
@@ -156,18 +149,13 @@ pub fn exec(args: &ArgMatches) {
         let ext = Path::new(fname).extension().and_then(OsStr::to_str);
         let ff: String;
         match ext {
-            Some(f) => {
-                ff = f.to_string();
-            }
-            None => {
-                continue;
-            }
+            Some(f) => ff = f.to_string(),
+            None => continue,
         };
 
         // get original directory and navigate to file type directories
         let full_path = parent.clone().join(ff);
 
-        //println!("FROM: {:?} --TO: {:?}", &file.path(), &full_path.join(file.file_name()));
         let f = fs::rename(file.path(), full_path.join(file.file_name()));
         match f {
             Ok(_) => files_sorted += 1.0,

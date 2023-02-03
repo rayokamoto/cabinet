@@ -7,6 +7,8 @@ use std::time::Instant;
 
 use chrono::{NaiveDateTime, Utc};
 
+// TODO: Use local time instead of UTC
+
 /// Set folder name according to the following format of `Cabinet-YYYYmmddTHHMMSS-<suffix>`
 pub fn set_folder_name(suffix: String) -> String {
     let timestamp = Utc::now().timestamp();
