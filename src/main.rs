@@ -6,7 +6,7 @@ mod util;
 
 const NAME: &str = "Cabinet";
 const BIN_NAME: &str = "cab";
-const VERSION: &str = "0.4.0";
+const VERSION: &str = "0.5.0";
 const ABOUT: &str = "A convenient file sorting utility";
 
 // TODO: Add option for config file (e.g. add your own template paths)
