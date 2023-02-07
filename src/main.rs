@@ -1,3 +1,5 @@
+use std::env;
+
 use clap::{Arg, Command};
 
 mod commands;
@@ -6,7 +8,7 @@ mod util;
 
 const NAME: &str = "Cabinet";
 const BIN_NAME: &str = "cab";
-const VERSION: &str = "0.5.0";
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 const ABOUT: &str = "A convenient file sorting utility";
 
 // TODO: Add option for config file (e.g. add your own template paths)
