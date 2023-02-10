@@ -64,7 +64,7 @@ pub fn exec(args: &ArgMatches) {
         let folder = ftype.to_string();
 
         let full_path = parent.clone();
-        let full_path = match util::create_folder(full_path, folder) {
+        let full_path = match util::create_folder(full_path, folder, true) {
             Ok(f) => f,
             Err(_) => return,
         };
@@ -131,7 +131,7 @@ pub fn exec(args: &ArgMatches) {
     // Create file type paths
     for file_type in &file_types {
         let full_path = parent.clone();
-        _ = util::create_folder(full_path, file_type.to_string());
+        _ = util::create_folder(full_path, file_type.to_string(), true);
     }
 
     // TODO: Check if output is specified and warn user that it will not be used for

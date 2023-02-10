@@ -19,11 +19,17 @@ pub fn set_folder_name(suffix: String) -> String {
 
 /// Create the folder to store the sorted files in. If folder name already exists,
 /// ask user if they wish to proceed or not.
-pub fn create_folder(path: PathBuf, folder: String) -> Result<PathBuf, io::Error> {
+///
+/// If `auto_yes` is `true`, then a folder will be used even if it already exists.
+pub fn create_folder(path: PathBuf, folder: String, auto_yes: bool) -> Result<PathBuf, io::Error> {
     let mut path = path;
     path.push(&folder);
 
     if Path::new(&path).exists() {
+        if auto_yes {
+            return Ok(path);
+        }
+
         print!("The folder with the name '{folder}' already exists. Sorted files will be placed in this folder anyway. Proceed? [y/N] ");
         let _ = stdout().flush();
         let mut ans = String::new();

@@ -128,7 +128,7 @@ pub fn exec(args: &ArgMatches) {
     }
 
     let full_path = parent.clone();
-    let full_path = match util::create_folder(full_path, folder) {
+    let full_path = match util::create_folder(full_path, folder, false) {
         Ok(f) => f,
         Err(_) => return,
     };
