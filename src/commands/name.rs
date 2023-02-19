@@ -82,9 +82,10 @@ pub fn exec(args: &ArgMatches) {
 
     let mut files: Vec<DirEntry> = vec![];
 
+    let mut has_include = false;
+    let mut has_exclude = false;
+
     if use_regex {
-        let mut has_include = false;
-        let mut has_exclude = false;
         let mut include: Regex = Regex::new("").unwrap();
         let mut exclude: Regex = Regex::new("").unwrap();
 
@@ -131,8 +132,6 @@ pub fn exec(args: &ArgMatches) {
             }
         }
     } else {
-        let mut has_include = false;
-        let mut has_exclude = false;
         let mut include = String::new();
         let mut exclude = String::new();
 
@@ -149,7 +148,7 @@ pub fn exec(args: &ArgMatches) {
             let item = item.unwrap();
             let md = item.metadata().unwrap();
 
-            let filename = &item.file_name(); // gets the name (no file extension)
+            let filename = &item.file_name();
             let f = OsStr::to_str(&filename).unwrap();
 
             if md.is_file() {

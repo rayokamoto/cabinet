@@ -34,14 +34,9 @@ pub fn create_folder(path: PathBuf, folder: String, auto_yes: bool) -> Result<Pa
         let _ = stdout().flush();
         let mut ans = String::new();
         stdin().read_line(&mut ans).expect("Malformed input");
-        if let Some('\n') = ans.chars().next_back() {
-            ans.pop();
-        }
-        if let Some('\r') = ans.chars().next_back() {
-            ans.pop();
-        }
 
-        if ans == "y" {
+        // could also use .trim_end_matches('\n').trim_end_matches('\r') // ORDER IS IMPORTANT
+        if ans.trim_end() == "y" {
             println!("\nContinuing anyway...");
             return Ok(path);
         } else {
@@ -91,7 +86,6 @@ pub fn sort_files(path: &PathBuf, files: &Vec<DirEntry>) {
     let duration = start.elapsed();
     stdout.flush().unwrap();
 
-    // NOTE: \t doesn't seem to actually work in clearing everything - you get "Processed 100%9%"
     print!("\rProcessed 100%   \n");
     println!("Time taken: {:?}", duration);
     println!(
@@ -121,7 +115,6 @@ pub fn sort_files_rc(path: &PathBuf, files: &Vec<Rc<DirEntry>>) {
     let duration = start.elapsed();
     stdout.flush().unwrap();
 
-    // NOTE: \t doesn't seem to actually work in clearing everything - you get "Processed 100%9%"
     print!("\rProcessed 100%   \n");
     println!("Time taken: {:?}", duration);
     println!(
