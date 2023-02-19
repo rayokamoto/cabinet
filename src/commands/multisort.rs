@@ -58,6 +58,11 @@ pub fn cli() -> Command {
                 .value_name("file-type")
                 .help("Sort files according to the specific file type")
                 .action(clap::ArgAction::Set),
+            Arg::new("regex")
+                .short('R')
+                .long("regex")
+                .value_name("match")
+                .help("Use regular expressions (regex) for pattern matching of file names"),
             Arg::new("template")
                 .short('t')
                 .long("template")
@@ -103,6 +108,7 @@ pub fn exec(args: &ArgMatches) {
 
     let mut include_pattern: Option<String> = None;
     let mut exclude_pattern: Option<String> = None;
+    let use_regex = args.get_flag("regex");
     if let Some(incl) = args.get_one::<String>("includes") {
         include_pattern = Some(incl.to_string());
     }
@@ -153,46 +159,99 @@ pub fn exec(args: &ArgMatches) {
 
     // Sort by name
 
-    let mut has_include = false;
-    let mut has_exclude = false;
-    let mut include = String::new();
-    let mut exclude = String::new();
-
-    if include_pattern != None {
-        has_include = true;
-        include = include_pattern.unwrap();
-    }
-    if exclude_pattern != None {
-        has_exclude = true;
-        exclude = exclude_pattern.unwrap();
-    }
-
     let mut new_files: Vec<Rc<DirEntry>> = vec![];
 
-    for item in &files {
-        let md = item.metadata().unwrap();
+    let mut has_include = false;
+    let mut has_exclude = false;
 
-        let filename = &item.file_name(); // gets the name (no file extension)
-        let f = OsStr::to_str(&filename).unwrap();
+    if use_regex {
+        let mut include: Regex = Regex::new("").unwrap();
+        let mut exclude: Regex = Regex::new("").unwrap();
 
-        if md.is_file() {
-            if (has_include && has_exclude) && (f.contains(&include) && !f.contains(&exclude)) {
-                new_files.push(Rc::clone(&item));
-            } else if (has_include && !has_exclude) && f.contains(&include) {
-                new_files.push(Rc::clone(&item));
-            }
-            // Only add file if it DOESN'T include the pattern (since it is exclude pattern)
-            else if (has_exclude && !has_include) && !f.contains(&exclude) {
-                new_files.push(Rc::clone(&item));
+        if include_pattern != None {
+            has_include = true;
+            include = Regex::new(include_pattern.unwrap().as_str()).unwrap();
+        }
+        if exclude_pattern != None {
+            has_exclude = true;
+            exclude = Regex::new(exclude_pattern.unwrap().as_str()).unwrap();
+        }
+
+        for item in &files {
+            let md = item.metadata().unwrap();
+
+            let filename = &item.file_name();
+            let f = OsStr::to_str(&filename).unwrap();
+
+            if md.is_file() {
+                if has_include && has_exclude {
+                    match include.captures(f) {
+                        Some(_) => {}
+                        None => continue,
+                    };
+                    match exclude.captures(f) {
+                        Some(_) => {}
+                        None => continue,
+                    };
+                    new_files.push(Rc::clone(&item));
+                } else if has_include && !has_exclude {
+                    match include.captures(f) {
+                        Some(_) => {}
+                        None => continue,
+                    };
+                    new_files.push(Rc::clone(&item));
+                } else if has_exclude && !has_include {
+                    match exclude.captures(f) {
+                        Some(_) => {}
+                        None => continue,
+                    };
+                    new_files.push(Rc::clone(&item));
+                }
             }
         }
-    }
 
-    if !&new_files.is_empty() {
-        files = new_files;
-        sort_files = true;
-    } else if new_files.is_empty() && (has_include || has_exclude) {
-        files = vec![];
+        if !&new_files.is_empty() {
+            files = new_files;
+            sort_files = true;
+        } else if new_files.is_empty() && (has_include || has_exclude) {
+            files = vec![];
+        }
+    } else {
+        let mut include = String::new();
+        let mut exclude = String::new();
+
+        if include_pattern != None {
+            has_include = true;
+            include = include_pattern.unwrap();
+        }
+        if exclude_pattern != None {
+            has_exclude = true;
+            exclude = exclude_pattern.unwrap();
+        }
+
+        for item in &files {
+            let md = item.metadata().unwrap();
+
+            let filename = &item.file_name();
+            let f = OsStr::to_str(&filename).unwrap();
+
+            if md.is_file() {
+                if (has_include && has_exclude) && (f.contains(&include) && !f.contains(&exclude)) {
+                    new_files.push(Rc::clone(&item));
+                } else if (has_include && !has_exclude) && f.contains(&include) {
+                    new_files.push(Rc::clone(&item));
+                } else if (has_exclude && !has_include) && !f.contains(&exclude) {
+                    new_files.push(Rc::clone(&item));
+                }
+            }
+        }
+
+        if !&new_files.is_empty() {
+            files = new_files;
+            sort_files = true;
+        } else if new_files.is_empty() && (has_include || has_exclude) {
+            files = vec![];
+        }
     }
 
     // Sort by date
@@ -326,6 +385,8 @@ pub fn exec(args: &ArgMatches) {
     } else if new_files.is_empty() && (has_min || has_max) {
         files = vec![];
     }
+
+    // Sort by type
 
     if file_type != None {
         let mut new_files: Vec<Rc<DirEntry>> = vec![];
