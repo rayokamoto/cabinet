@@ -121,6 +121,7 @@ Options:
   -M, --max <size>        Get files that are LESS THAN the specified size (in KB)
   -o, --output <output>   Specify the name of the output folder
   -T, --type <file-type>  Sort files according to the specific file type
+  -R, --regex <match>     Use regular expressions (regex) for pattern matching of file names
   -t, --template          The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
   -h, --help              Print help
 ```
@@ -145,6 +146,7 @@ Arguments:
 Options:
   -I, --includes <match>  File name includes...
   -E, --excludes <match>  File name excludes...
+  -R, --regex             Use regular expressions (regex) for pattern matching
   -t, --template          The path you are using is a predefined one (e.g. 'downloads' for your downloads folder)
   -o, --output <output>   Specify the name of the output folder
   -h, --help              Print help
