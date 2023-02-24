@@ -27,8 +27,8 @@ cab <command> [options] [<path>]
 
 ### Commands
 * `date` - Sort by date modified (before or after given date in `YYYY-MM-DD` format)
-* `name` - Sort by name of file (by whether given pattern is in the name or not)
-* `size` - Sort by size of file in KB (by whether file is smaller or larger than given size)
+* `name` - Sort by name of the file (by whether given pattern is in the name or not)
+* `size` - Sort by size of the file in KB (by whether file is smaller or larger than given size)
 * `type` - Sort by file type (e.g. `.jpg`, `.png`, `.pdf`, etc.)
 * `multisort` - Sort files based on all the above attributes
 

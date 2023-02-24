@@ -28,8 +28,6 @@ Currently implemented commands:
 Other commands:
 - `help`
 
-Future commands:
-
 ### Path
 You have two options when providing a path:
 - Normal path 
@@ -158,6 +156,8 @@ Sort files that includes the given string OR sort files that DO NOT contain the 
 cab name /path/to/folder --includes Copy
 cab name /path/to/folder --excludes important
 cab name -t downloads --includes "hello world" --excludes "earth"
+cab name -t downloads --regex --includes "hello world" --excludes "^goodbye world$"
+cab name -t downloads --regex --includes "Plan [0-9]+"
 ```
 
 <br>
@@ -207,9 +207,6 @@ Options:
   -o, --output <output>   Specify the name of the output folder
   -h, --help              Print help
 ```
-#### Remarks
-- The option to specify only one file type will be added in the future.
-
 #### Examples
 ```
 cab type /path/to/folder
