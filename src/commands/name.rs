@@ -27,7 +27,6 @@ pub fn cli() -> Command {
             Arg::new("regex")
                 .short('R')
                 .long("regex")
-                .value_name("match")
                 .help("Use regular expressions (regex) for pattern matching")
                 .action(clap::ArgAction::SetTrue),
             Arg::new("template")

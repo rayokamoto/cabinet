@@ -61,8 +61,8 @@ pub fn cli() -> Command {
             Arg::new("regex")
                 .short('R')
                 .long("regex")
-                .value_name("match")
-                .help("Use regular expressions (regex) for pattern matching of file names"),
+                .help("Use regular expressions (regex) for pattern matching of file names")
+                .action(clap::ArgAction::SetTrue),
             Arg::new("template")
                 .short('t')
                 .long("template")
