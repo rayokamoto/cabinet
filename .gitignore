@@ -1,9 +1,14 @@
+# Rust
 /target
 
-## Python
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
 # Tests
 /tests/test_dir
+
+# Nix
+.direnv/
+.envrc
