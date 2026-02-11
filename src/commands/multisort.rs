@@ -281,7 +281,7 @@ pub fn exec(args: &ArgMatches) {
                 return;
             }
         }
-        before = naive_date_time.timestamp();
+        before = naive_date_time.and_utc().timestamp();
     }
     if date_after != None {
         has_after = true;
@@ -301,7 +301,7 @@ pub fn exec(args: &ArgMatches) {
             }
         }
 
-        after = naive_date_time.timestamp();
+        after = naive_date_time.and_utc().timestamp();
     }
 
     let mut new_files: Vec<Rc<DirEntry>> = vec![];

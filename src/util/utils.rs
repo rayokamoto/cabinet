@@ -5,14 +5,14 @@ use std::process::exit;
 use std::rc::Rc;
 use std::time::Instant;
 
-use chrono::{NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 
 // TODO: Use local time instead of UTC
 
 /// Set folder name according to the following format of `Cabinet-YYYYmmddTHHMMSS-<suffix>`
 pub fn set_folder_name(suffix: String) -> String {
     let timestamp = Utc::now().timestamp();
-    let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+    let naive = DateTime::from_timestamp(timestamp, 0).unwrap();
     let n = naive.format("%Y%m%dT%H%M%S");
     format!("Cabinet-{n}-{suffix}")
 }
