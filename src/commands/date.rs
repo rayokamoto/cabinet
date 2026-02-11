@@ -49,7 +49,7 @@ pub fn exec(args: &ArgMatches) {
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
-    if path == None {
+    if path.is_none() {
         println!("ERROR: The path is invalid");
         return;
     }
@@ -71,7 +71,7 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    if date_before == None && date_after == None {
+    if date_before.is_none() && date_after.is_none() {
         println!("ERROR: A before or after date must be provided");
         return;
     }
@@ -83,9 +83,9 @@ pub fn exec(args: &ArgMatches) {
     let mut before: i64 = 0;
     let mut after: i64 = 0;
 
-    if date_before != None {
+    if let Some(date_before_val) = &date_before {
         has_before = true;
-        let d = &date_before.as_ref().unwrap()[..];
+        let d = &date_before_val[..];
         let cap = re.captures(d).unwrap();
         //let text = "2012-03-14, 2013-01-01 and 2014-07-05";
         //for cap in re.captures_iter(text) {
@@ -97,34 +97,31 @@ pub fn exec(args: &ArgMatches) {
             cap[2].parse::<u32>().unwrap(),
             cap[3].parse::<u32>().unwrap(),
         );
-        let naive_date_time: NaiveDateTime;
-        match date_time {
-            Some(d) => naive_date_time = d.and_hms_opt(0, 0, 0).unwrap(),
+        let naive_date_time: NaiveDateTime = match date_time {
+            Some(d) => d.and_hms_opt(0, 0, 0).unwrap(),
             None => {
                 println!("ERROR: Invalid date conversion");
                 return;
             }
-        }
+        };
         before = naive_date_time.and_utc().timestamp();
     }
-    if date_after != None {
+    if let Some(date_after_val) = &date_after {
         has_after = true;
-        let d = &date_after.as_ref().unwrap()[..];
+        let d = &date_after_val[..];
         let cap = re.captures(d).unwrap();
         let date_time = chrono::NaiveDate::from_ymd_opt(
             cap[1].parse::<i32>().unwrap(),
             cap[2].parse::<u32>().unwrap(),
             cap[3].parse::<u32>().unwrap(),
         );
-        let naive_date_time: NaiveDateTime;
-        match date_time {
-            Some(d) => naive_date_time = d.and_hms_opt(0, 0, 0).unwrap(),
+        let naive_date_time: NaiveDateTime = match date_time {
+            Some(d) => d.and_hms_opt(0, 0, 0).unwrap(),
             None => {
                 println!("ERROR: Invalid date conversion");
                 return;
             }
-        }
-
+        };
         after = naive_date_time.and_utc().timestamp();
     }
 
@@ -148,17 +145,16 @@ pub fn exec(args: &ArgMatches) {
             let dur = chrono::Duration::from_std(time).unwrap();
             let file_date = dur.num_seconds();
 
-            if (has_before && has_after) && (file_date >= after && file_date <= before) {
-                files.push(item);
-            } else if (has_before && !has_after) && file_date <= before {
-                files.push(item);
-            } else if (has_after && !has_before) && file_date >= after {
+            if (!has_after || file_date >= after)
+                && (has_after || has_before)
+                && (file_date <= before || !has_before)
+            {
                 files.push(item);
             }
         }
     }
 
-    if *&files.len() == 0 {
+    if files.is_empty() {
         println!("There are no files to sort that match the given parameters");
         return;
     }

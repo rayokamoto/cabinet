@@ -3,8 +3,8 @@ use std::path::PathBuf;
 
 use clap::{Arg, ArgMatches, Command};
 
-use crate::util::path::get_path;
 use crate::util;
+use crate::util::path::get_path;
 
 pub fn cli() -> Command {
     Command::new("size")
@@ -45,7 +45,7 @@ pub fn exec(args: &ArgMatches) {
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
-    if path == None {
+    if path.is_none() {
         println!("ERROR: The path is invalid");
         return;
     }
@@ -61,7 +61,7 @@ pub fn exec(args: &ArgMatches) {
     }
 
     // Neither was provided
-    if size_min == None && size_max == None {
+    if size_min.is_none() && size_max.is_none() {
         println!("ERROR: A min or max size (or both) must be provided");
         return;
     }
@@ -71,21 +71,13 @@ pub fn exec(args: &ArgMatches) {
     let mut min: u64 = 0;
     let mut max: u64 = 0;
 
-    if size_min != None {
+    if let Some(ref s) = size_min {
         has_min = true;
-        min = size_min.clone().unwrap().parse::<u64>().unwrap();
-        if &min < &0 {
-            println!("ERROR: Negative values cannot be used as file sizes");
-            return;
-        }
+        min = s.parse::<u64>().unwrap();
     }
-    if size_max != None {
+    if let Some(ref s) = size_max {
         has_max = true;
-        max = size_max.clone().unwrap().parse::<u64>().unwrap();
-        if &max < &0 {
-            println!("ERROR: Negative values cannot be used as file sizes");
-            return;
-        }
+        max = s.parse::<u64>().unwrap();
     }
 
     let dir = fs::read_dir(path.as_ref().unwrap()).unwrap();
@@ -103,17 +95,16 @@ pub fn exec(args: &ArgMatches) {
             let file_size = &md.len() / 1000; // Convert bytes to kilobytes
 
             //println!("filesize:{} - min-check:{:?}, max-check:{:?}", &file_size, file_size >= min, file_size <= max);
-            if (has_min && has_max) && (file_size >= min && file_size <= max) {
-                files.push(item);
-            } else if (has_min && !has_max) && file_size >= min {
-                files.push(item);
-            } else if (has_max && !has_min) && file_size <= max {
+            if (!has_max || file_size <= max)
+                && (has_max || has_min)
+                && (file_size >= min || !has_min)
+            {
                 files.push(item);
             }
         }
     }
 
-    if *&files.len() == 0 {
+    if files.is_empty() {
         println!("There are no files to sort that match the given parameters");
         return;
     }

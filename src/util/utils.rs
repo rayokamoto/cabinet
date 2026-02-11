@@ -53,26 +53,26 @@ pub fn create_folder(path: PathBuf, folder: String, auto_yes: bool) -> Result<Pa
                 &folder,
                 &path.display()
             );
-            return Ok(path);
+            Ok(path)
         }
         Err(error) => {
             println!(
                 "There was a problem creating the folder for \"{}\":\n{:?}",
                 &folder, error
             );
-            return Err(error);
+            Err(error)
         }
     }
 }
 
 // TODO: Consider adding a progress bar
-pub fn sort_files(path: &PathBuf, files: &Vec<DirEntry>) {
+pub fn sort_files(path: &Path, files: &[DirEntry]) {
     let mut files_sorted: f64 = 0.0;
     let start = Instant::now();
     let mut stdout = stdout();
 
     for (idx, file) in files.iter().enumerate() {
-        let done = idx as f64 / *&files.len() as f64;
+        let done = idx as f64 / files.len() as f64;
         let f = fs::rename(file.path(), path.join(file.file_name()));
         match f {
             Ok(_) => files_sorted += 1.0,
@@ -95,13 +95,13 @@ pub fn sort_files(path: &PathBuf, files: &Vec<DirEntry>) {
     );
 }
 
-pub fn sort_files_rc(path: &PathBuf, files: &Vec<Rc<DirEntry>>) {
+pub fn sort_files_rc(path: &Path, files: &[Rc<DirEntry>]) {
     let mut files_sorted: f64 = 0.0;
     let start = Instant::now();
     let mut stdout = stdout();
 
     for (idx, file) in files.iter().enumerate() {
-        let done = idx as f64 / *&files.len() as f64;
+        let done = idx as f64 / files.len() as f64;
         let f = fs::rename(file.path(), path.join(file.file_name()));
         match f {
             Ok(_) => files_sorted += 1.0,

@@ -52,7 +52,7 @@ pub fn exec(args: &ArgMatches) {
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
-    if path == None {
+    if path.is_none() {
         println!("ERROR: The path is invalid");
         return;
     }
@@ -69,7 +69,7 @@ pub fn exec(args: &ArgMatches) {
     }
 
     // Neither was provided
-    if include_pattern == None && exclude_pattern == None {
+    if include_pattern.is_none() && exclude_pattern.is_none() {
         println!("ERROR: A before or after date must be provided");
         return;
     }
@@ -88,13 +88,13 @@ pub fn exec(args: &ArgMatches) {
         let mut include: Regex = Regex::new("").unwrap();
         let mut exclude: Regex = Regex::new("").unwrap();
 
-        if include_pattern != None {
+        if let Some(p) = include_pattern {
             has_include = true;
-            include = Regex::new(include_pattern.unwrap().as_str()).unwrap();
+            include = Regex::new(p.as_str()).unwrap();
         }
-        if exclude_pattern != None {
+        if let Some(p) = exclude_pattern {
             has_exclude = true;
-            exclude = Regex::new(exclude_pattern.unwrap().as_str()).unwrap();
+            exclude = Regex::new(p.as_str()).unwrap();
         }
 
         for item in dir {
@@ -102,7 +102,7 @@ pub fn exec(args: &ArgMatches) {
             let md = item.metadata().unwrap();
 
             let filename = &item.file_name();
-            let f = OsStr::to_str(&filename).unwrap();
+            let f = OsStr::to_str(filename).unwrap();
 
             if md.is_file() {
                 if has_include && has_exclude {
@@ -134,13 +134,13 @@ pub fn exec(args: &ArgMatches) {
         let mut include = String::new();
         let mut exclude = String::new();
 
-        if include_pattern != None {
+        if let Some(p) = include_pattern {
             has_include = true;
-            include = include_pattern.unwrap();
+            include = p;
         }
-        if exclude_pattern != None {
+        if let Some(p) = exclude_pattern {
             has_exclude = true;
-            exclude = exclude_pattern.unwrap();
+            exclude = p;
         }
 
         for item in dir {
@@ -148,21 +148,19 @@ pub fn exec(args: &ArgMatches) {
             let md = item.metadata().unwrap();
 
             let filename = &item.file_name();
-            let f = OsStr::to_str(&filename).unwrap();
+            let f = OsStr::to_str(filename).unwrap();
 
-            if md.is_file() {
-                if (has_include && has_exclude) && (f.contains(&include) && !f.contains(&exclude)) {
-                    files.push(item);
-                } else if (has_include && !has_exclude) && f.contains(&include) {
-                    files.push(item);
-                } else if (has_exclude && !has_include) && !f.contains(&exclude) {
-                    files.push(item);
-                }
+            if md.is_file()
+                && ((has_include && has_exclude && f.contains(&include) && !f.contains(&exclude))
+                    || (has_include && !has_exclude && f.contains(&include))
+                    || (has_exclude && !has_include && !f.contains(&exclude)))
+            {
+                files.push(item);
             }
         }
     }
 
-    if *&files.len() == 0 {
+    if files.is_empty() {
         println!("There are no files to sort that match the given parameters");
         return;
     }

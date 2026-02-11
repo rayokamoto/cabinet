@@ -86,7 +86,7 @@ pub fn exec(args: &ArgMatches) {
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
-    if path == None {
+    if path.is_none() {
         println!("ERROR: The path is invalid");
         return;
     }
@@ -131,13 +131,13 @@ pub fn exec(args: &ArgMatches) {
     }
 
     // No options were provided
-    if size_min == None
-        && size_max == None
-        && include_pattern == None
-        && exclude_pattern == None
-        && date_before == None
-        && date_after == None
-        && file_type == None
+    if size_min.is_none()
+        && size_max.is_none()
+        && include_pattern.is_none()
+        && exclude_pattern.is_none()
+        && date_before.is_none()
+        && date_after.is_none()
+        && file_type.is_none()
     {
         println!("ERROR: At least one option must be provided");
         return;
@@ -168,20 +168,20 @@ pub fn exec(args: &ArgMatches) {
         let mut include: Regex = Regex::new("").unwrap();
         let mut exclude: Regex = Regex::new("").unwrap();
 
-        if include_pattern != None {
+        if let Some(p) = include_pattern {
             has_include = true;
-            include = Regex::new(include_pattern.unwrap().as_str()).unwrap();
+            include = Regex::new(p.as_str()).unwrap();
         }
-        if exclude_pattern != None {
+        if let Some(p) = exclude_pattern {
             has_exclude = true;
-            exclude = Regex::new(exclude_pattern.unwrap().as_str()).unwrap();
+            exclude = Regex::new(p.as_str()).unwrap();
         }
 
         for item in &files {
             let md = item.metadata().unwrap();
 
             let filename = &item.file_name();
-            let f = OsStr::to_str(&filename).unwrap();
+            let f = OsStr::to_str(filename).unwrap();
 
             if md.is_file() {
                 if has_include && has_exclude {
@@ -193,19 +193,19 @@ pub fn exec(args: &ArgMatches) {
                         Some(_) => {}
                         None => continue,
                     };
-                    new_files.push(Rc::clone(&item));
+                    new_files.push(Rc::clone(item));
                 } else if has_include && !has_exclude {
                     match include.captures(f) {
                         Some(_) => {}
                         None => continue,
                     };
-                    new_files.push(Rc::clone(&item));
+                    new_files.push(Rc::clone(item));
                 } else if has_exclude && !has_include {
                     match exclude.captures(f) {
                         Some(_) => {}
                         None => continue,
                     };
-                    new_files.push(Rc::clone(&item));
+                    new_files.push(Rc::clone(item));
                 }
             }
         }
@@ -220,29 +220,27 @@ pub fn exec(args: &ArgMatches) {
         let mut include = String::new();
         let mut exclude = String::new();
 
-        if include_pattern != None {
+        if let Some(p) = include_pattern {
             has_include = true;
-            include = include_pattern.unwrap();
+            include = p;
         }
-        if exclude_pattern != None {
+        if let Some(p) = exclude_pattern {
             has_exclude = true;
-            exclude = exclude_pattern.unwrap();
+            exclude = p;
         }
 
         for item in &files {
             let md = item.metadata().unwrap();
 
             let filename = &item.file_name();
-            let f = OsStr::to_str(&filename).unwrap();
+            let f = OsStr::to_str(filename).unwrap();
 
-            if md.is_file() {
-                if (has_include && has_exclude) && (f.contains(&include) && !f.contains(&exclude)) {
-                    new_files.push(Rc::clone(&item));
-                } else if (has_include && !has_exclude) && f.contains(&include) {
-                    new_files.push(Rc::clone(&item));
-                } else if (has_exclude && !has_include) && !f.contains(&exclude) {
-                    new_files.push(Rc::clone(&item));
-                }
+            if md.is_file()
+                && ((has_include && has_exclude && f.contains(&include) && !f.contains(&exclude))
+                    || (has_include && !has_exclude && f.contains(&include))
+                    || (has_exclude && !has_include && !f.contains(&exclude)))
+            {
+                new_files.push(Rc::clone(item));
             }
         }
 
@@ -263,9 +261,9 @@ pub fn exec(args: &ArgMatches) {
     let mut before: i64 = 0;
     let mut after: i64 = 0;
 
-    if date_before != None {
+    if let Some(ref date_before_val) = date_before {
         has_before = true;
-        let d = &date_before.as_ref().unwrap()[..];
+        let d = &date_before_val[..];
         let cap = re.captures(d).unwrap();
 
         let date_time = chrono::NaiveDate::from_ymd_opt(
@@ -273,33 +271,31 @@ pub fn exec(args: &ArgMatches) {
             cap[2].parse::<u32>().unwrap(),
             cap[3].parse::<u32>().unwrap(),
         );
-        let naive_date_time: NaiveDateTime;
-        match date_time {
-            Some(d) => naive_date_time = d.and_hms_opt(0, 0, 0).unwrap(),
+        let naive_date_time: NaiveDateTime = match date_time {
+            Some(d) => d.and_hms_opt(0, 0, 0).unwrap(),
             None => {
                 println!("ERROR: Invalid date conversion");
                 return;
             }
-        }
+        };
         before = naive_date_time.and_utc().timestamp();
     }
-    if date_after != None {
+    if let Some(ref date_after_val) = date_after {
         has_after = true;
-        let d = &date_after.as_ref().unwrap()[..];
+        let d = &date_after_val[..];
         let cap = re.captures(d).unwrap();
         let date_time = chrono::NaiveDate::from_ymd_opt(
             cap[1].parse::<i32>().unwrap(),
             cap[2].parse::<u32>().unwrap(),
             cap[3].parse::<u32>().unwrap(),
         );
-        let naive_date_time: NaiveDateTime;
-        match date_time {
-            Some(d) => naive_date_time = d.and_hms_opt(0, 0, 0).unwrap(),
+        let naive_date_time: NaiveDateTime = match date_time {
+            Some(d) => d.and_hms_opt(0, 0, 0).unwrap(),
             None => {
                 println!("ERROR: Invalid date conversion");
                 return;
             }
-        }
+        };
 
         after = naive_date_time.and_utc().timestamp();
     }
@@ -320,12 +316,11 @@ pub fn exec(args: &ArgMatches) {
             let dur = chrono::Duration::from_std(time).unwrap();
             let file_date = dur.num_seconds();
 
-            if (has_before && has_after) && (file_date >= after && file_date <= before) {
-                new_files.push(Rc::clone(&item));
-            } else if (has_before && !has_after) && file_date <= before {
-                new_files.push(Rc::clone(&item));
-            } else if (has_after && !has_before) && file_date >= after {
-                new_files.push(Rc::clone(&item));
+            if (!has_after || file_date >= after)
+                && (has_after || has_before)
+                && (file_date <= before || !has_before)
+            {
+                new_files.push(Rc::clone(item));
             }
         }
     }
@@ -344,21 +339,13 @@ pub fn exec(args: &ArgMatches) {
     let mut min: u64 = 0;
     let mut max: u64 = 0;
 
-    if size_min != None {
+    if let Some(ref s) = size_min {
         has_min = true;
-        min = size_min.clone().unwrap().parse::<u64>().unwrap();
-        if &min < &0 {
-            println!("ERROR: Negative values cannot be used as file sizes");
-            return;
-        }
+        min = s.parse::<u64>().unwrap();
     }
-    if size_max != None {
+    if let Some(ref s) = size_max {
         has_max = true;
-        max = size_max.clone().unwrap().parse::<u64>().unwrap();
-        if &max < &0 {
-            println!("ERROR: Negative values cannot be used as file sizes");
-            return;
-        }
+        max = s.parse::<u64>().unwrap();
     }
 
     let mut new_files: Vec<Rc<DirEntry>> = vec![];
@@ -369,12 +356,11 @@ pub fn exec(args: &ArgMatches) {
             let file_size = &md.len() / 1000; // Convert bytes to kilobytes
 
             //println!("filesize:{} - min-check:{:?}, max-check:{:?}", &file_size, file_size >= min, file_size <= max);
-            if (has_min && has_max) && (file_size >= min && file_size <= max) {
-                new_files.push(Rc::clone(&item));
-            } else if (has_min && !has_max) && file_size >= min {
-                new_files.push(Rc::clone(&item));
-            } else if (has_max && !has_min) && file_size <= max {
-                new_files.push(Rc::clone(&item));
+            if (!has_max || file_size <= max)
+                && (has_max || has_min)
+                && (file_size >= min || !has_min)
+            {
+                new_files.push(Rc::clone(item));
             }
         }
     }
@@ -388,7 +374,7 @@ pub fn exec(args: &ArgMatches) {
 
     // Sort by type
 
-    if file_type != None {
+    if file_type.is_some() {
         let mut new_files: Vec<Rc<DirEntry>> = vec![];
         for item in &files {
             let md = item.metadata().unwrap();
@@ -396,13 +382,12 @@ pub fn exec(args: &ArgMatches) {
             if md.is_file() {
                 let filename = &item.file_name();
                 let extension = Path::new(filename).extension().and_then(OsStr::to_str);
-                let ext: String;
-                match extension {
-                    Some(f) => ext = f.to_string(),
+                let ext: String = match extension {
+                    Some(f) => f.to_string(),
                     None => continue,
                 };
                 if ext == file_type.clone().unwrap() {
-                    new_files.push(Rc::clone(&item));
+                    new_files.push(Rc::clone(item));
                 }
             }
         }
@@ -410,7 +395,7 @@ pub fn exec(args: &ArgMatches) {
         if !&new_files.is_empty() {
             files = new_files;
             sort_files = true;
-        } else if new_files.is_empty() && file_type != None {
+        } else if new_files.is_empty() && file_type.is_some() {
             files = vec![];
         }
     }
@@ -419,7 +404,7 @@ pub fn exec(args: &ArgMatches) {
         files = vec![];
     }
 
-    if *&files.len() == 0 {
+    if files.is_empty() {
         println!("There are no files to sort that match the given parameters");
         return;
     }

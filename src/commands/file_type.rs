@@ -43,12 +43,12 @@ pub fn exec(args: &ArgMatches) {
     if let Some(p) = args.get_one::<String>("path") {
         path = get_path(p, use_template);
     }
-    if path == None {
+    if path.is_none() {
         println!("ERROR: The path is invalid");
         return;
     }
 
-    if let Some(_) = args.get_one::<String>("output") {
+    if args.get_one::<String>("output").is_some() {
         println!("NOTE: Setting a custom output folder is currently not possible when sorting by file type");
     }
 
@@ -76,12 +76,11 @@ pub fn exec(args: &ArgMatches) {
             if md.is_file() {
                 let filename = &item.file_name();
                 let extension = Path::new(filename).extension().and_then(OsStr::to_str);
-                let ext: String;
-                match extension {
-                    Some(f) => ext = f.to_string(),
+                let ext: String = match extension {
+                    Some(f) => f.to_string(),
                     None => continue,
                 };
-                if ext == ftype.to_string() {
+                if ext == *ftype {
                     files.push(item);
                 }
             } else {
@@ -102,15 +101,11 @@ pub fn exec(args: &ArgMatches) {
             files.push(item);
 
             let f_type = Path::new(filename).extension().and_then(OsStr::to_str);
-            let ff: String;
-            match f_type {
-                Some(f) => {
-                    ff = f.to_string();
-                    if !file_types.contains(&ff) {
-                        file_types.push(ff);
-                    }
+            if let Some(f) = f_type {
+                let ff = f.to_string();
+                if !file_types.contains(&ff) {
+                    file_types.push(ff);
                 }
-                None => {}
             };
         } else {
             // Ignore directories (for now)
@@ -118,7 +113,7 @@ pub fn exec(args: &ArgMatches) {
         }
     }
 
-    if *&files.len() == 0 {
+    if files.is_empty() {
         println!("There are no files to sort");
         return;
     }
@@ -142,13 +137,12 @@ pub fn exec(args: &ArgMatches) {
     // TODO: maybe have progress bar
     let mut stdout = stdout();
     for (idx, file) in files.iter().enumerate() {
-        let done = idx as f64 / *&files.len() as f64;
+        let done = idx as f64 / files.len() as f64;
 
         let fname = &file.file_name();
         let ext = Path::new(fname).extension().and_then(OsStr::to_str);
-        let ff: String;
-        match ext {
-            Some(f) => ff = f.to_string(),
+        let ff: String = match ext {
+            Some(f) => f.to_string(),
             None => continue,
         };
 

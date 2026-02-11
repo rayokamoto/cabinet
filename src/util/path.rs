@@ -25,12 +25,10 @@ pub fn get_path(path: &String, use_template: bool) -> Option<PathBuf> {
             "videos" | "movies" => path_ref = dirs::video_dir(),
             _ => println!("The template '{}' does not exist.", &path),
         }
+    } else if Path::new(path).exists() {
+        path_ref = Some(PathBuf::from(path));
     } else {
-        if Path::new(path).exists() {
-            path_ref = Some(PathBuf::from(path));
-        } else {
-            println!("Directory \"{}\" either does not exist or this program is missing permissions to access it.", &path);
-        }
+        println!("Directory \"{}\" either does not exist or this program is missing permissions to access it.", &path);
     }
 
     path_ref
