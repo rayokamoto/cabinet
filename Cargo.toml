@@ -1,6 +1,6 @@
 [package]
 name = "cabinet"
-version = "0.6.1"
+version = "0.6.2"
 license = "MPL-2.0"
 description = "A convenient file sorting utility"
 readme = "README.md"
@@ -8,10 +8,10 @@ repository = "https://github.com/rayokamoto/cabinet"
 edition = "2021"
 
 [dependencies]
-chrono = "0.4.23"
-clap = "4.0.25"
-dirs = "4.0.0"
-regex = "1.7.0"
+chrono = "0.4.43"
+clap = "4.5"
+dirs = "6"
+regex = "1.12"
 
 [[bin]]
 name = "cab"
@@ -19,3 +19,6 @@ path = "src/main.rs"
 
 [profile.release]
 opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
